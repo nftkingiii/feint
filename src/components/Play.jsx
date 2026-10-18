@@ -31,7 +31,7 @@ function guideLine({ index, card, feedback, checking, lastTap }) {
 }
 
 export default function Play(props) {
-  const { country, deck, results, index, card, finished, checking, verified, feedback, found, lastTap, lost, cluesSoFar, seed } = props;
+  const { country, deck, results, index, card, finished, checking, verified, feedback, pending, found, lastTap, lost, cluesSoFar, seed } = props;
   const daily = dailyLabel(seed);
   const { onTap, onCheck, onCloseCheck, onDecide, onRewind, onNext, onShowCase, onPlayAgain, onDaily } = props;
 
@@ -84,7 +84,7 @@ export default function Play(props) {
           deck={deck}
           results={results}
           index={index}
-          pending={feedback?.outcome ?? null}
+          pending={pending}
           lost={lost}
           cluesSoFar={cluesSoFar}
         />

@@ -210,6 +210,8 @@ export default function App() {
             checking={checking}
             verified={verified}
             feedback={feedback}
+            // A message put right only after a rewind still counts as fooled, so the meters show it that way at once.
+            pending={feedback ? (rewound ? 'fooled' : feedback.outcome) : null}
             found={found}
             lastTap={lastTap}
             lost={lost}

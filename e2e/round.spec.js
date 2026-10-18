@@ -67,3 +67,16 @@ test('the wordmark leaves the round and keeps the country', async ({ page }) => 
   await expect(page.getByRole('heading', { name: /Spot the scam/ })).toBeVisible();
   await expect(page.locator('label.selected')).toContainText('Nigeria');
 });
+
+test('a message put right after a rewind shows as wrong straight away', async ({ page }) => {
+  await page.goto('/?c=us&s=7');
+  await expect(page.getByText('Message 1 of 8')).toBeVisible();
+  await page.keyboard.press('a');
+  await page.getByRole('button', { name: /Rewind and try again/ }).click();
+  await page.getByRole('button', { name: 'Ignore it' }).click();
+  await expect(page.locator('.pip').first()).toHaveClass(/wrong/);
+  await expect(page.locator('.meters')).toContainText('0 of 1 right');
+  await page.getByRole('button', { name: /Next message/ }).click();
+  await expect(page.locator('.pip').first()).toHaveClass(/wrong/);
+  await expect(page.locator('.meters')).toContainText('0 of 1 right');
+});
