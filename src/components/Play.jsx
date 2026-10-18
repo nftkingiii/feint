@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { CLUES } from '../data/clues.js';
 import { PATTERN_BY_ID } from '../data/patterns.js';
-import { formatMoney } from '../lib/engine.js';
+import { dailyLabel, formatMoney } from '../lib/engine.js';
 import Card from './Card.jsx';
 import Guide from './Guide.jsx';
 import Meters from './Meters.jsx';
@@ -24,7 +24,8 @@ function guideLine({ index, card, feedback, checking, lastTap }) {
 }
 
 export default function Play(props) {
-  const { country, deck, results, index, card, finished, checking, verified, feedback, found, lastTap, lost, cluesSoFar } = props;
+  const { country, deck, results, index, card, finished, checking, verified, feedback, found, lastTap, lost, cluesSoFar, seed } = props;
+  const daily = dailyLabel(seed);
   const { onTap, onCheck, onCloseCheck, onDecide, onRewind, onNext, onShowCase } = props;
 
   useShortcuts({ card, feedback, finished, checking, onCheck, onCloseCheck, onDecide, onRewind, onNext });
@@ -51,6 +52,7 @@ export default function Play(props) {
 
       <div className="desk-center">
         <p className="situation-label">
+          {daily && <span className="daily-tag">Today’s case · {daily}</span>}
           Message {index + 1} of {deck.length} · a {CHANNEL_NOUN[card.channel]}
         </p>
         <p className="situation">{card.context}</p>

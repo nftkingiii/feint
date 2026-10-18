@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { PATTERN_BY_ID } from '../data/patterns.js';
 import { SOURCES } from '../data/sources.js';
-import { formatMoney, shareQuery, summarize } from '../lib/engine.js';
+import { dailyLabel, formatMoney, shareQuery, shareText, summarize } from '../lib/engine.js';
 import Guide from './Guide.jsx';
 
 const OUTCOME = {
@@ -19,6 +19,7 @@ function closingLine(s) {
 
 export default function CaseFile({ country, deck, results, seed, finished, shared, previous, onPlayAgain, onDaily, onResume }) {
   const [copied, setCopied] = useState(false);
+  const [copiedText, setCopiedText] = useState(false);
 
   // During a replay of a round finished earlier, show that earlier result.
   const shown = finished ? results : previous;
@@ -41,12 +42,23 @@ export default function CaseFile({ country, deck, results, seed, finished, share
   const link = `${window.location.origin}${window.location.pathname}${shareQuery({ country: country.code, seed, results: shown })}`;
   const line = closingLine(s);
 
+  const resultText = shareText({ country, seed, summary: s, link });
+
   async function copy() {
     try {
       await navigator.clipboard.writeText(link);
       setCopied(true);
     } catch {
       setCopied(false);
+    }
+  }
+
+  async function copyResult() {
+    try {
+      await navigator.clipboard.writeText(resultText);
+      setCopiedText(true);
+    } catch {
+      setCopiedText(false);
     }
   }
 
@@ -66,7 +78,10 @@ export default function CaseFile({ country, deck, results, seed, finished, share
         )}
         <div className="dossier-head">
           <div>
-            <p className="dossier-label">Case file · {country.name}</p>
+            <p className="dossier-label">
+              Case file · {country.name}
+              {dailyLabel(seed) && ` · Daily case ${dailyLabel(seed)}`}
+            </p>
             <h2 className="rank">{s.rank}</h2>
             <p className="score">
               <span className="num">{s.correct}</span> of {s.total} calls right
@@ -155,6 +170,14 @@ export default function CaseFile({ country, deck, results, seed, finished, share
         </ul>
       </section>
 
+      <section className="share-result" aria-labelledby="share-result-title">
+        <h3 id="share-result-title">Share your result</h3>
+        <pre className="result-text" aria-label="Your result as text">{resultText}</pre>
+        <button className="chunky primary inline" onClick={copyResult}>
+          <span>{copiedText ? 'Result copied' : 'Copy result'}</span>
+        </button>
+      </section>
+
       <div className="share">
         <label htmlFor="share-link">Share this case file</label>
         <div className="share-row">
@@ -170,7 +193,7 @@ export default function CaseFile({ country, deck, results, seed, finished, share
           <span>Play a new round</span>
         </button>
         <button className="chunky plain" onClick={onDaily}>
-          <span>Play today’s challenge</span>
+          <span>Play today’s case</span>
         </button>
       </div>
     </div>

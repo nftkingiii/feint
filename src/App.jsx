@@ -146,7 +146,11 @@ export default function App() {
   if (!countryInfo) {
     return (
       <Shell>
-        <CountryPicker onPick={code => startRun(code)} onGuide={code => setState({ ...EMPTY, guide: code })} />
+        <CountryPicker
+          onPick={code => startRun(code)}
+          onDaily={code => startRun(code, dailySeed())}
+          onGuide={code => setState({ ...EMPTY, guide: code })}
+        />
       </Shell>
     );
   }
@@ -197,6 +201,7 @@ export default function App() {
         {tab === 'play' && (
           <Play
             country={countryInfo}
+            seed={seed}
             deck={deck}
             results={results}
             index={index}
