@@ -17,7 +17,7 @@ const HINTS = {
   global: 'The ten universal tricks',
 };
 
-export default function CountryPicker({ onPick }) {
+export default function CountryPicker({ onPick, onGuide }) {
   const [choice, setChoice] = useState(guessCountry);
 
   return (
@@ -53,9 +53,14 @@ export default function CountryPicker({ onPick }) {
               ))}
             </div>
           </fieldset>
-          <button type="submit" className="chunky primary large">
-            <span>Start playing</span>
-          </button>
+          <div className="picker-actions">
+            <button type="submit" className="chunky primary large">
+              <span>Start playing</span>
+            </button>
+            <button type="button" className="chunky plain large" onClick={() => onGuide(choice)}>
+              <span>Read the field guide</span>
+            </button>
+          </div>
         </form>
       </div>
 

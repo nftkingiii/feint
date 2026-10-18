@@ -140,13 +140,21 @@ describe('results encoding and share links', () => {
     const full = deck.map(() => ({ decision: 'ignore', verified: false, rewound: false }));
     const q = shareQuery({ country: 'gb', seed: 1234, results: full });
     expect(q).toBe('?c=gb&s=1234&r=IIIIIIII');
-    expect(readQuery(q)).toEqual({ country: 'gb', seed: 1234, results: full });
+    expect(readQuery(q)).toEqual({ country: 'gb', seed: 1234, results: full, damaged: false });
   });
 
   it('ignores a bad country, seed or result string', () => {
-    expect(readQuery('?c=zz&s=5')).toEqual({ country: null, seed: null, results: null });
-    expect(readQuery('?c=ng&s=abc')).toEqual({ country: 'ng', seed: null, results: null });
-    expect(readQuery('?c=ng&s=5&r=AAA').results).toBeNull();
+    expect(readQuery('?c=zz&s=5')).toEqual({ country: null, seed: null, results: null, damaged: false });
+    expect(readQuery('?c=ng&s=abc')).toEqual({ country: 'ng', seed: null, results: null, damaged: false });
+    expect(readQuery('?c=ng&s=5&r=AAA')).toMatchObject({ results: null, damaged: true });
+  });
+
+  it('reads a link whose ampersands were HTML-escaped', () => {
+    const q = readQuery('?c=ng&amp;s=42&amp;r=IIAIIIAI');
+    expect(q.country).toBe('ng');
+    expect(q.seed).toBe(42);
+    expect(q.results).toHaveLength(8);
+    expect(q.damaged).toBe(false);
   });
 });
 

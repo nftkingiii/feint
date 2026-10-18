@@ -14,12 +14,14 @@ const TABS = [
   { id: 'guide', label: 'Field guide' },
 ];
 
-const EMPTY = { country: null, seed: null, results: [], index: 0, tab: 'play', shared: false };
+const EMPTY = { country: null, seed: null, results: [], index: 0, tab: 'play', shared: false, damaged: false, guide: null };
 
 function initialState() {
-  const { country, seed, results } = readQuery(window.location.search);
-  if (country && seed && results) return { country, seed, results, index: results.length, tab: 'case', shared: true };
-  if (country) return { ...EMPTY, country, seed: seed ?? randomSeed() };
+  const { country, seed, results, damaged } = readQuery(window.location.search);
+  if (country && seed && results) return { ...EMPTY, country, seed, results, index: results.length, tab: 'case', shared: true };
+  // A link that names a country but whose result part is unreadable starts the
+  // round fresh, and says so, instead of looking like a working case file.
+  if (country) return { ...EMPTY, country, seed: seed ?? randomSeed(), damaged };
   return EMPTY;
 }
 
@@ -121,10 +123,28 @@ export default function App() {
     });
   }, [feedback, verified, rewound, found, deck.length]);
 
+  if (!countryInfo && state.guide) {
+    // The field guide, opened from the landing page before any round.
+    const guideCountry = COUNTRY_BY_CODE[state.guide];
+    return (
+      <Shell>
+        <div className="guide-bar">
+          <button className="chunky plain inline" onClick={() => setState(EMPTY)}>
+            <span>← Back</span>
+          </button>
+          <button className="chunky primary inline" onClick={() => startRun(state.guide)}>
+            <span>Start playing</span>
+          </button>
+        </div>
+        <FieldGuide country={guideCountry} />
+      </Shell>
+    );
+  }
+
   if (!countryInfo) {
     return (
       <Shell>
-        <CountryPicker onPick={code => startRun(code)} />
+        <CountryPicker onPick={code => startRun(code)} onGuide={code => setState({ ...EMPTY, guide: code })} />
       </Shell>
     );
   }
@@ -155,6 +175,14 @@ export default function App() {
         setState(EMPTY);
       }}
     >
+      {state.damaged && (
+        <div className="notice" role="status">
+          <p>That case file link is incomplete, so it can’t be shown. You’re playing the same round from the start instead.</p>
+          <button className="notice-close" onClick={() => setState(s => ({ ...s, damaged: false }))} aria-label="Dismiss">
+            ×
+          </button>
+        </div>
+      )}
       <section role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`} className="tab-panel">
         {tab === 'play' && (
           <Play

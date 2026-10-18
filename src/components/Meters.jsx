@@ -9,16 +9,25 @@ export default function Meters({ country, deck, results, index, lost, cluesSoFar
   const savings = Math.max(0, country.wallet - lost);
   const shown = useCountTo(savings);
 
-  const genuineSeen = results.filter((_, i) => deck[i].kind === 'genuine');
-  const genuineRight = results.filter((r, i) => deck[i].kind === 'genuine' && r.decision === 'act').length;
-  const trust = genuineSeen.length === 0 ? 1 : genuineRight / genuineSeen.length;
+  // Accuracy: share of calls made so far that were right. A rewound card counts as wrong.
+  const right = results.filter((r, i) => {
+    const outcome = r.rewound ? 'fooled' : judge(deck[i], r.decision);
+    return outcome === 'caught' || outcome === 'trusted';
+  }).length;
+  const accuracy = results.length === 0 ? null : right / results.length;
 
   return (
     <div className={compact ? 'meters compact' : 'meters'}>
       <Meter label="Savings" value={formatMoney(shown, country)} ratio={savings / country.wallet} tone="savings" note="illustrative" />
       {!compact && (
         <>
-          <Meter label="Trust" value={`${Math.round(trust * 100)}%`} ratio={trust} tone="trust" note="real messages handled" />
+          <Meter
+            label="Accuracy"
+            value={accuracy === null ? '—' : `${right} of ${results.length} right`}
+            ratio={accuracy ?? 1}
+            tone="accuracy"
+            note="calls so far"
+          />
           <div className="meter clues">
             <span className="meter-label">Clues marked</span>
             <span className="meter-value num">{cluesSoFar}</span>

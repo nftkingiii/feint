@@ -98,6 +98,8 @@ export default function Card({ card, clues, found, onTap, checking, outcome, loc
   const canSwipe = !locked && !checking;
 
   function onPointerDown(e) {
+    // A drag that ended without a click event must not swallow this new tap.
+    suppressClick.current = false;
     if (!canSwipe || e.button > 0) return;
     drag.current = { x: e.clientX, id: e.pointerId, moved: false };
   }

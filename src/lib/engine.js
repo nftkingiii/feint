@@ -150,12 +150,20 @@ export function shareQuery({ country, seed, results }) {
   return `?${params.toString()}`;
 }
 
+/**
+ * Read a run from the query string. Tolerates links whose ampersands were
+ * HTML-escaped (`&amp;`) on the way, which happens when a link is copied out
+ * of rendered Markdown or a chat app. `damaged` is true when the link names a
+ * country and seed but its results part is unreadable, so the app can say so
+ * instead of quietly starting a fresh round.
+ */
 export function readQuery(search) {
-  const params = new URLSearchParams(search);
+  const params = new URLSearchParams(String(search ?? '').replace(/&amp;/gi, '&'));
   const country = COUNTRY_BY_CODE[params.get('c') ?? ''] ? params.get('c') : null;
   const seed = parseSeed(params.get('s') ?? '');
-  if (!country || !seed) return { country, seed: null, results: null };
+  if (!country || !seed) return { country, seed: null, results: null, damaged: params.has('r') };
   const deck = buildDeck(country, seed);
-  const results = decodeResults(params.get('r') ?? '', deck.length);
-  return { country, seed, results };
+  const raw = params.get('r');
+  const results = decodeResults(raw ?? '', deck.length);
+  return { country, seed, results, damaged: raw !== null && results === null };
 }

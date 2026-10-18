@@ -615,7 +615,7 @@ legend {
   transition: width 650ms var(--out);
 }
 
-.meter.trust .meter-track span {
+.meter.accuracy .meter-track span {
   background: var(--good);
 }
 
@@ -1523,7 +1523,7 @@ legend {
     grid-template-columns: minmax(0, 1fr);
     gap: 8px;
   }
-  .meter.trust,
+  .meter.accuracy,
   .meter.clues {
     display: none;
   }
@@ -1592,5 +1592,53 @@ legend {
 @media (hover: none) {
   kbd {
     display: none;
+  }
+}
+
+/* Landing actions, field-guide bar and notices */
+.picker-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.chunky.inline {
+  width: auto;
+}
+
+.guide-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  background: var(--warn-soft);
+  border: 2px solid #ecd9a6;
+  border-radius: 14px;
+}
+
+.notice p {
+  margin: 0;
+  flex: 1;
+}
+
+.notice-close {
+  border: 0;
+  background: none;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--warn);
+}
+
+@media (max-width: 560px) {
+  .picker-actions {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

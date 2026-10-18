@@ -22,10 +22,12 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 
 ## Navigation
 
-- First visit (`/`): the country picker. Options: Nigeria, United States, United Kingdom, Anywhere else. One is pre-selected from the browser language; **Start playing** begins a round.
+- First visit (`/`): the country picker. Options: Nigeria, United States, United Kingdom, Anywhere else, each with a flag. One is pre-selected from the browser language; **Start playing** begins a round.
+- **Read the field guide** on the landing page opens the field guide for the selected country without starting a round. It has **← Back** (returns to the picker) and **Start playing**.
 - In a round, three tabs: **Play**, **Case file**, **Field guide**. The country chip in the header returns to the country picker.
 - The address bar always reflects the round: `/?c=<country>&s=<seed>` while playing, plus `&r=<results>` once finished.
 - Country codes: `ng`, `us`, `gb`, `global`. An unknown code (e.g. `/?c=zz`) shows the country picker.
+- Links still work if their ampersands were HTML-escaped (`/?c=ng&amp;s=42&amp;r=IIAIIIAI` opens the same shared case file); the address bar is cleaned up to plain `&`.
 
 ## Play screen
 
@@ -41,7 +43,7 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 - **After a correct decision:** a green stamp on the card ("Scam avoided" or "Real. Good call"), Vee explains the tell, and a **Next message** button (Enter). After the last message the button reads **See your case file**.
 - **After ignoring a genuine message:** an amber stamp "That was real".
 - **After being fooled:** a red stamp "Feinted", a loss panel with the illustrative amount (e.g. "−₦85,000"), what was taken, and the trick's name. Savings in the left meter drop by that amount. Two buttons: **Rewind and try again** (R), which restores savings and lets the player decide again, and **Take the loss**, which moves on.
-- **Meters** (left column on desktop, top on mobile): Savings (illustrative), Trust (share of genuine messages acted on), Clues marked, and eight progress pips (green = right, red = wrong, indigo = current).
+- **Meters** (left column on desktop; on mobile only Savings and the pips show): Savings (illustrative), **Accuracy** ("N of M right" for calls made so far, "—" before the first call; a rewound card counts as wrong, so it drops after a fooled call), Clues marked (rises by one for each clue tapped), and eight progress pips (green = right, red = wrong, indigo = current).
 
 ## Case file
 
@@ -86,7 +88,9 @@ These links always deal the same messages. Use them so tests can check exact out
 
 **Shared case file — `/?c=ng&s=42&r=IIAIIIAI`** opens straight on the Case file with "A shared case file", rank **Unfeintable**, 8 of 8.
 
-**Invalid input:** `/?c=zz` shows the country picker; `/?c=ng&s=abc` starts a Nigeria round with a fresh seed; `/?c=ng&s=42&r=AAA` (wrong length) starts the round instead of showing a case file.
+**Invalid input:** `/?c=zz` shows the country picker; `/?c=ng&s=abc` starts a Nigeria round with a fresh seed; `/?c=ng&s=42&r=AAA` (damaged results) starts the round from message 1 and shows a notice: "That case file link is incomplete, so it can’t be shown. You’re playing the same round from the start instead."
+
+**Accuracy check (Nigeria seed 42):** ignore message 1 → "1 of 1 right"; act on message 2 and take the loss → "1 of 2 right"; act on message 3 (genuine) → "2 of 3 right".
 
 ## Out of scope
 
