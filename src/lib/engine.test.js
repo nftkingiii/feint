@@ -87,15 +87,15 @@ describe('judge', () => {
 
 describe('results encoding and share links', () => {
   const results = [
-    { decision: 'act', verified: false },
-    { decision: 'ignore', verified: true },
-    { decision: 'act', verified: true },
-    { decision: 'ignore', verified: false },
+    { decision: 'act', verified: false, rewound: false },
+    { decision: 'ignore', verified: true, rewound: false },
+    { decision: 'act', verified: true, rewound: false },
+    { decision: 'ignore', verified: false, rewound: true },
   ];
 
-  it('round-trips results', () => {
-    expect(encodeResults(results)).toBe('AiaI');
-    expect(decodeResults('AiaI', 4)).toEqual(results);
+  it('round-trips results, including checks and rewinds', () => {
+    expect(encodeResults(results)).toBe('AiaJ');
+    expect(decodeResults('AiaJ', 4)).toEqual(results);
   });
 
   it('rejects malformed or wrong-length results', () => {
@@ -106,7 +106,7 @@ describe('results encoding and share links', () => {
 
   it('builds and reads a share query', () => {
     const deck = buildDeck('gb', 1234);
-    const full = deck.map(() => ({ decision: 'ignore', verified: false }));
+    const full = deck.map(() => ({ decision: 'ignore', verified: false, rewound: false }));
     const q = shareQuery({ country: 'gb', seed: 1234, results: full });
     expect(q).toBe('?c=gb&s=1234&r=IIIIIIII');
     expect(readQuery(q)).toEqual({ country: 'gb', seed: 1234, results: full });
@@ -135,6 +135,17 @@ describe('summarize', () => {
     expect(g.fooled).toBe(deck.filter(c => c.kind === 'scam').length);
     expect(g.verified).toBe(8);
     expect(g.rank).toBe('Easy mark');
+  });
+
+  it('counts a card answered right only after a rewind as fooled', () => {
+    const deck = buildDeck('us', 3);
+    const perfect = deck.map(c => ({ decision: c.kind === 'scam' ? 'ignore' : 'act', verified: false }));
+    const scamAt = deck.findIndex(c => c.kind === 'scam');
+    perfect[scamAt] = { ...perfect[scamAt], rewound: true };
+    const s = summarize(deck, perfect);
+    expect(s.correct).toBe(7);
+    expect(s.rewound).toBe(1);
+    expect(s.rows[scamAt].outcome).toBe('fooled');
   });
 
   it('ranks by share of correct answers', () => {

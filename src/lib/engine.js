@@ -72,29 +72,40 @@ export function judge(card, decision) {
 
 export const isCorrect = outcome => outcome === 'caught' || outcome === 'trusted';
 
-/** Results encode as one letter per card: A/I for act/ignore, lowercase when verified first. */
+/**
+ * Results encode as one letter per card. A/I mean act/ignore; B/J are the same
+ * decisions made after a rewind (the player was fooled first). Lowercase means
+ * the player checked first.
+ */
+const LETTERS = { act: ['A', 'B'], ignore: ['I', 'J'] };
+
 export function encodeResults(results) {
   return results
     .map(r => {
-      const letter = r.decision === 'act' ? 'A' : 'I';
+      const letter = LETTERS[r.decision][r.rewound ? 1 : 0];
       return r.verified ? letter.toLowerCase() : letter;
     })
     .join('');
 }
 
 export function decodeResults(text, deckLength) {
-  if (typeof text !== 'string' || text.length !== deckLength || !/^[AIai]+$/.test(text)) return null;
-  return [...text].map(ch => ({
-    decision: ch.toUpperCase() === 'A' ? 'act' : 'ignore',
-    verified: ch === ch.toLowerCase(),
-  }));
+  if (typeof text !== 'string' || text.length !== deckLength || !/^[ABIJabij]+$/.test(text)) return null;
+  return [...text].map(ch => {
+    const upper = ch.toUpperCase();
+    return {
+      decision: upper === 'A' || upper === 'B' ? 'act' : 'ignore',
+      verified: ch !== upper,
+      rewound: upper === 'B' || upper === 'J',
+    };
+  });
 }
 
 export function summarize(deck, results) {
   const rows = deck.map((card, i) => {
     const r = results[i];
-    const outcome = judge(card, r.decision);
-    return { card, decision: r.decision, verified: r.verified, outcome, correct: isCorrect(outcome) };
+    // A card the player only got right after rewinding still counts as fooled.
+    const outcome = r.rewound ? 'fooled' : judge(card, r.decision);
+    return { card, decision: r.decision, verified: r.verified, rewound: Boolean(r.rewound), outcome, correct: isCorrect(outcome) };
   });
   const correct = rows.filter(r => r.correct).length;
   const fooled = rows.filter(r => r.outcome === 'fooled');
@@ -105,6 +116,7 @@ export function summarize(deck, results) {
     fooled: fooled.length,
     missed: rows.filter(r => r.outcome === 'missed').length,
     verified: rows.filter(r => r.verified).length,
+    rewound: rows.filter(r => r.rewound).length,
     lossAvoided: rows
       .filter(r => r.outcome === 'caught')
       .reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
