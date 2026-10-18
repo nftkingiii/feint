@@ -221,6 +221,8 @@ export default function App() {
             onRewind={onRewind}
             onNext={onNext}
             onShowCase={() => setTab('case')}
+            onPlayAgain={() => startRun(country)}
+            onDaily={() => startRun(country, dailySeed())}
           />
         )}
         {tab === 'case' && (

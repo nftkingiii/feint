@@ -33,7 +33,11 @@ export function segment(text, clues) {
   const out = [];
   let pos = 0;
   const pushPlain = chunk => {
-    for (const part of chunk.split(/(?<=[.,!?:])\s+/)) if (part.trim()) out.push({ text: part.trim(), clue: null });
+    for (const part of chunk.split(/(?<=[.,!?:])\s+/)) {
+      const text = part.trim();
+      // Punctuation on its own (a colon left between two phrases) is not something to tap.
+      if (text) out.push({ text, clue: null, inert: /^[.,!?:;…-]+$/.test(text) });
+    }
   };
   for (const hit of hits) {
     if (hit.start < pos) continue;
@@ -47,6 +51,7 @@ export function segment(text, clues) {
 
 function Segments({ text, clues, found, onTap }) {
   return segment(text, clues).map((seg, i) => {
+    if (seg.inert) return <span key={i}>{seg.text} </span>;
     const isFound = seg.clue !== null && found.has(seg.clue);
     // An inline span (not a <button>) so the message wraps like normal text.
     return (

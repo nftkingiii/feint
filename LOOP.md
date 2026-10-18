@@ -47,3 +47,16 @@ Unit tests 35/35 (new: round memory, including blocked storage).
 | Use swipe gestures to act and ignore | Blocked: the test browser cannot drag | The test tool has no drag action; the gesture itself works (verified with a Playwright mouse drag in run 2) | Arrow keys now swipe the card with the same animation and outcome, and the card is a labelled, focusable group, so swiping is reachable from the keyboard and verifiable by tools that cannot drag |
 
 Shared-case-file journeys from run 3 re-checked live afterwards.
+
+## Run 5 · 2026-10-18 · first pull-request run (PR #5)
+
+TestSprite's GitHub App ran 44 tests against the preview of PR #5 (daily case, shareable result, Playwright drag test): 39 passed, 4 failed, 1 blocked.
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Return to messages from the case file | After the round, the Play tab offered only "Open your case file" | Real gap | The last-message screen now also offers Play a new round and Play today's case |
+| Complete the round by ignoring a scam | The test ignored message 1 assuming it was a scam; in that random round it was a genuine bank alert, so "That was real" was correct | Test assumption | The PRD now says random rounds cannot assume message order and points to the fixed links |
+| Handle a suspicious message by checking first | The trusted channel confirmed the pharmacy message was real; the test still ignored it | Test assumption | Same PRD note |
+| Mark clues and track clue count | Clues were not marked by "keyboard activation" | Not reproduced: Enter and Space on a phrase mark it (Playwright). Found instead that a lone ":" was exposed as a button | Punctuation on its own is now plain text; a unit test checks every clue still becomes its own phrase |
+
+Unit tests 40/40. Pushed to the PR branch, so the check re-runs on the PR.

@@ -26,7 +26,7 @@ function guideLine({ index, card, feedback, checking, lastTap }) {
 export default function Play(props) {
   const { country, deck, results, index, card, finished, checking, verified, feedback, found, lastTap, lost, cluesSoFar, seed } = props;
   const daily = dailyLabel(seed);
-  const { onTap, onCheck, onCloseCheck, onDecide, onRewind, onNext, onShowCase } = props;
+  const { onTap, onCheck, onCloseCheck, onDecide, onRewind, onNext, onShowCase, onPlayAgain, onDaily } = props;
 
   useShortcuts({ card, feedback, finished, checking, onCheck, onCloseCheck, onDecide, onRewind, onNext });
 
@@ -34,9 +34,17 @@ export default function Play(props) {
     return (
       <div className="round-done">
         <h2>That was the last message.</h2>
-        <button className="btn primary" onClick={onShowCase}>
-          Open your case file
-        </button>
+        <div className="panel-actions">
+          <button className="chunky primary" onClick={onShowCase}>
+            <span>Open your case file</span>
+          </button>
+          <button className="chunky plain" onClick={onPlayAgain}>
+            <span>Play a new round</span>
+          </button>
+          <button className="chunky plain" onClick={onDaily}>
+            <span>Play today’s case</span>
+          </button>
+        </div>
       </div>
     );
   }
