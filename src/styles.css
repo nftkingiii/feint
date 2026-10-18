@@ -120,6 +120,18 @@ main {
   letter-spacing: -0.01em;
 }
 
+.wordmark-home {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.wordmark-home:hover {
+  color: var(--accent);
+}
+
 .tabs {
   display: flex;
   gap: 4px;

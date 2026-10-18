@@ -249,7 +249,14 @@ function Shell({ country, tabs, onChangeCountry, children }) {
   return (
     <div className="app">
       <header className="masthead">
-        <span className="wordmark">Feint</span>
+        {onChangeCountry ? (
+          // In a round, the wordmark is the way out: back to the start, country kept.
+          <button className="wordmark wordmark-home" onClick={onChangeCountry} aria-label="Leave the round and go back to the start" title="Leave the round">
+            Feint
+          </button>
+        ) : (
+          <span className="wordmark">Feint</span>
+        )}
         {tabs}
         {country && (
           <button className="country-chip" onClick={onChangeCountry} aria-label={`Country: ${country.name}. Change country`}>

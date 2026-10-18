@@ -60,3 +60,10 @@ test('only the face of the card that is showing can be used', async ({ page }) =
   await page.getByRole('button', { name: 'send $400' }).click();
   await expect(page.locator('.card-foot')).toHaveText('1 clue marked');
 });
+
+test('the wordmark leaves the round and keeps the country', async ({ page }) => {
+  await page.goto('/?c=ng&s=42');
+  await page.getByRole('button', { name: 'Leave the round and go back to the start' }).click();
+  await expect(page.getByRole('heading', { name: /Spot the scam/ })).toBeVisible();
+  await expect(page.locator('label.selected')).toContainText('Nigeria');
+});

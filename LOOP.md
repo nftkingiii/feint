@@ -115,3 +115,10 @@ Unit tests 41/41. Playwright 22/24 against a local build (the 2 misses are the u
 | Two blocked (verification tests) | Steps did not say which message to use | Vague test | Both now name a fixed link and message |
 
 Unit tests 41/41. Playwright round suite 12/12 against a local build.
+
+## Runs 10–11 · 2026-10-18 · PR #5 with the rewritten test plan
+
+- Run 10: 82/84. Two clue tests tapped phrases that were not clues. The "my phone fell inside water" excuse is a fair tell, so the lost-phone excuse is now a clue in the Nigeria and US new-number scams; the other test was given fixed steps.
+- Run 11: 83/84. "Open the field guide from the game" found no way to leave a round (only the country chip did it). In a round the Feint wordmark is now a "Leave the round" button that goes back to the start with the country kept. Playwright test added.
+
+Unit tests 41/41. Playwright 28/30 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).
