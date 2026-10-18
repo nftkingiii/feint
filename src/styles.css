@@ -177,6 +177,27 @@ main {
   color: var(--ink-2);
 }
 
+.flag {
+  flex: none;
+  width: 24px;
+  height: 16px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(31, 28, 24, 0.12);
+  color: var(--ink-2);
+}
+
+.flag-lg {
+  width: 36px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+svg.flag[viewBox="0 0 24 24"] {
+  box-shadow: none;
+  width: 24px;
+  height: 24px;
+}
+
 .country-chip {
   display: inline-flex;
   align-items: center;

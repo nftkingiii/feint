@@ -6,6 +6,7 @@ import CountryPicker from './components/CountryPicker.jsx';
 import Play from './components/Play.jsx';
 import CaseFile from './components/CaseFile.jsx';
 import FieldGuide from './components/FieldGuide.jsx';
+import Flag from './components/Flag.jsx';
 
 const TABS = [
   { id: 'play', label: 'Play' },
@@ -206,9 +207,7 @@ function Shell({ country, tabs, onChangeCountry, children }) {
         {tabs}
         {country && (
           <button className="country-chip" onClick={onChangeCountry} aria-label={`Country: ${country.name}. Change country`}>
-            <span className="code-badge" aria-hidden="true">
-              {country.code === 'global' ? '◎' : country.code.toUpperCase()}
-            </span>
+            <Flag code={country.code} />
             <span className="chip-name">{country.name}</span>
           </button>
         )}

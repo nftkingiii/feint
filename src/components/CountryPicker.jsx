@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { COUNTRIES } from '../data/countries.js';
+import Flag from './Flag.jsx';
 import Guide from './Guide.jsx';
 
 /** Best guess from the browser's region, used only to pre-select; the player always confirms. */
@@ -43,9 +44,7 @@ export default function CountryPicker({ onPick }) {
               {COUNTRIES.map(c => (
                 <label key={c.code} className={choice === c.code ? 'country selected' : 'country'}>
                   <input type="radio" name="country" value={c.code} checked={choice === c.code} onChange={() => setChoice(c.code)} />
-                  <span className="code-badge" aria-hidden="true">
-                    {c.code === 'global' ? '◎' : c.code.toUpperCase()}
-                  </span>
+                  <Flag code={c.code} className="flag flag-lg" />
                   <span className="country-text">
                     <span className="country-name">{c.name}</span>
                     <span className="country-hint">{HINTS[c.code]}</span>
