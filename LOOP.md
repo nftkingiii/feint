@@ -60,3 +60,16 @@ TestSprite's GitHub App ran 44 tests against the preview of PR #5 (daily case, s
 | Mark clues and track clue count | Clues were not marked by "keyboard activation" | Not reproduced: Enter and Space on a phrase mark it (Playwright). Found instead that a lone ":" was exposed as a button | Punctuation on its own is now plain text; a unit test checks every clue still becomes its own phrase |
 
 Unit tests 40/40. Pushed to the PR branch, so the check re-runs on the PR.
+
+## Run 6 · 2026-10-18 · pull-request run with the merge gate on (PR #5)
+
+44 tests on the PR #5 preview: 38 passed, 5 failed, 1 blocked. The TestSprite V3 check failed and held the merge, as intended.
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Invalid country code | `/zz` returned Vercel's 404 page instead of the game | Real bug | `vercel.json` sends every path to the app; Playwright checks `/zz` loads the game |
+| Mark clues (three tests) | Clicks at the centre of a phrase missed it. A phrase that wraps across lines has a box whose centre sits on a neighbouring phrase ("send $400" on phones, "this is my new number" on desktop) | Real bug, reproduced in Playwright | Phrases are now solid inline boxes; Playwright checks the centre of every phrase in three full rounds hits that phrase |
+| Ignore a genuine message after verifying it | The test used the BVN message, which is a scam, so "Scam avoided" was correct | Test assumption | None in the app; the test needs a genuine card from a fixed link |
+| Swipe (blocked) | TestSprite's browser cannot drag | Tool limit | Arrow keys already swipe; the test should press them. Playwright covers the drag itself |
+
+Unit tests 40/40. Playwright against the preview 16/16 (desktop and phone). Pushed to the PR branch, so the check re-runs.
