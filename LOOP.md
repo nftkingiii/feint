@@ -30,3 +30,12 @@ TestSprite flagged four journeys again. I reproduced each with Playwright (the s
 | Use swipe gestures | The test tool cannot drag | A Playwright mouse drag swipes correctly; the tool lacked a drag action | No code change: the PRD now says swipe is an optional shortcut and the buttons are canonical |
 
 Unit tests 32/32.
+
+## Run 3 · 2026-10-18 · two shared-case-file journeys left
+
+| Journey | What the test saw | Root cause | Fix |
+|---|---|---|---|
+| Open a shared case file directly from the URL | After finishing a round, opening the round address showed "opens when the round ends", 0 of 8 | Real gap: the agent reopened the address without the results part, and the app had no memory of finished rounds | Finished rounds are remembered in the browser; reopening shows a notice and the Case file tab shows the earlier result, while the round can still be replayed |
+| Open a shared case file from a results link | Started on the landing page and found no results link to follow | Real gap for first-time visitors and judges: nothing on the landing page shows how a round ends | Added "See an example case file" on the landing page, linking to a finished Nigeria round |
+
+Unit tests 35/35 (new: round memory, including blocked storage).

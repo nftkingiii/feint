@@ -62,6 +62,9 @@ export default function CountryPicker({ onPick, onGuide }) {
             </button>
           </div>
         </form>
+        <p className="example-link">
+          Want to see how a round ends? <a href="/?c=ng&s=42&r=IIAIIJAI">See an example case file</a> (a finished Nigeria round).
+        </p>
       </div>
 
       <div className="landing-demo" aria-hidden="true">

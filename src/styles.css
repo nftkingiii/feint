@@ -1697,3 +1697,32 @@ legend {
   font-size: 14px;
   color: var(--muted);
 }
+
+.notice.info {
+  background: var(--accent-soft);
+  border-color: #cdd2f6;
+  align-items: center;
+}
+
+.replay-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--accent-soft);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.replay-note p {
+  margin: 0;
+  flex: 1;
+  min-width: 220px;
+}
+
+.example-link {
+  margin: 18px 0 0;
+  color: var(--ink-2);
+  font-size: 15px;
+}

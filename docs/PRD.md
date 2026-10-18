@@ -23,6 +23,7 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 ## Navigation
 
 - First visit (`/`): the country picker. Options: Nigeria, United States, United Kingdom, Anywhere else, each with a flag. One is pre-selected from the browser language; **Start playing** begins a round.
+- **See an example case file** (a link under the buttons on the landing page) opens a finished Nigeria round as a shared case file: `/?c=ng&s=42&r=IIAIIJAI`, rank **Sharp-eyed**, 7 of 8, with message 6 shown as "Fooled, caught on rewind".
 - **Read the field guide** on the landing page opens the field guide for the selected country without starting a round. It has **← Back** (returns to the picker) and **Start playing**.
 - In a round, three tabs: **Play**, **Case file**, **Field guide**. The country chip in the header returns to the country picker.
 - The address bar always reflects the round: `/?c=<country>&s=<seed>` while playing, plus `&r=<results>` once finished.
@@ -54,7 +55,9 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 - "If it happens for real in <country>": where to report, with sources.
 - **Share this case file:** a read-only link field and **Copy link** (changes to "Link copied").
 - **Play a new round** (new seed) and **Play today's challenge** (seed from today's UTC date).
-- Before the round ends, the Case file tab says "Your case file opens when the round ends." with a count of messages handled.
+- Before the round ends, the Case file tab says "Your case file opens when the round ends." with a count of messages handled, unless this browser finished the same round before (see below).
+- **Finished rounds are remembered in this browser.** Reopening a round address without the results part (e.g. `/?c=us&s=7` after finishing it) starts the round again but shows a notice, "You finished this round before. Your earlier case file is still here, or play it again.", with **See your case file**. The Case file tab then shows the earlier result with "Your earlier result for this round. In this replay you have handled N of 8 messages." and **Back to the messages**. A new browser profile has no history, so it simply starts the round.
+- The **shared results link** for any finished round is shown in the case file under "Share this case file" (and is also the address bar once the round ends).
 
 ## Field guide
 

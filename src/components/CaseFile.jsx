@@ -17,10 +17,12 @@ function closingLine(s) {
   return { mood: 'worried', text: 'Look at the clues you missed below. Scammers reuse the same few tricks everywhere.' };
 }
 
-export default function CaseFile({ country, deck, results, seed, finished, shared, onPlayAgain, onDaily, onResume }) {
+export default function CaseFile({ country, deck, results, seed, finished, shared, previous, onPlayAgain, onDaily, onResume }) {
   const [copied, setCopied] = useState(false);
 
-  if (!finished) {
+  // During a replay of a round finished earlier, show that earlier result.
+  const shown = finished ? results : previous;
+  if (!shown) {
     return (
       <div className="round-done">
         <h2>Your case file opens when the round ends.</h2>
@@ -34,9 +36,9 @@ export default function CaseFile({ country, deck, results, seed, finished, share
     );
   }
 
-  const s = summarize(deck, results);
+  const s = summarize(deck, shown);
   const left = Math.max(0, country.wallet - s.lossTaken);
-  const link = `${window.location.origin}${window.location.pathname}${shareQuery({ country: country.code, seed, results })}`;
+  const link = `${window.location.origin}${window.location.pathname}${shareQuery({ country: country.code, seed, results: shown })}`;
   const line = closingLine(s);
 
   async function copy() {
@@ -52,6 +54,16 @@ export default function CaseFile({ country, deck, results, seed, finished, share
     <div className="case">
       <section className="dossier">
         {shared && <p className="shared-note">A shared case file</p>}
+        {!finished && (
+          <div className="replay-note">
+            <p>
+              Your earlier result for this round. In this replay you have handled {results.length} of {deck.length} messages.
+            </p>
+            <button className="chunky plain inline" onClick={onResume}>
+              <span>Back to the messages</span>
+            </button>
+          </div>
+        )}
         <div className="dossier-head">
           <div>
             <p className="dossier-label">Case file · {country.name}</p>

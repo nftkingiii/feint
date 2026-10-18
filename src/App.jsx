@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CLUES } from './data/clues.js';
 import { COUNTRY_BY_CODE } from './data/countries.js';
 import { buildDeck, dailySeed, judge, randomSeed, readQuery, shareQuery } from './lib/engine.js';
+import { recallRound, rememberRound } from './lib/history.js';
 import CountryPicker from './components/CountryPicker.jsx';
 import Play from './components/Play.jsx';
 import CaseFile from './components/CaseFile.jsx';
@@ -40,6 +41,8 @@ export default function App() {
   const finished = deck.length > 0 && results.length === deck.length;
   const card = finished ? null : deck[index];
   const countryInfo = country ? COUNTRY_BY_CODE[country] : null;
+  // A finished result for this same round, remembered from an earlier visit in this browser.
+  const previous = useMemo(() => (country && seed && !state.shared ? recallRound(country, seed) : null), [country, seed, state.shared]);
 
   // Savings lost: every committed loss, plus the one on screen until the player rewinds.
   const lost =
@@ -115,13 +118,12 @@ export default function App() {
   const onNext = useCallback(() => {
     if (!feedback) return;
     const entry = { decision: feedback.decision, verified, rewound, clues: found.size };
+    const nextResults = [...results, entry];
+    const done = nextResults.length === deck.length;
+    if (done) rememberRound(country, seed, nextResults);
     resetCard();
-    setState(s => {
-      const nextResults = [...s.results, entry];
-      const done = nextResults.length === deck.length;
-      return { ...s, results: nextResults, index: s.index + 1, tab: done ? 'case' : 'play', shared: false };
-    });
-  }, [feedback, verified, rewound, found, deck.length]);
+    setState(s => ({ ...s, results: nextResults, index: s.index + 1, tab: done ? 'case' : 'play', shared: false }));
+  }, [feedback, verified, rewound, found, results, deck.length, country, seed]);
 
   if (!countryInfo && state.guide) {
     // The field guide, opened from the landing page before any round.
@@ -175,6 +177,14 @@ export default function App() {
         setState(EMPTY);
       }}
     >
+      {previous && !finished && results.length === 0 && tab === 'play' && !state.damaged && (
+        <div className="notice info" role="status">
+          <p>You finished this round before. Your earlier case file is still here, or play it again.</p>
+          <button className="chunky plain inline" onClick={() => setTab('case')}>
+            <span>See your case file</span>
+          </button>
+        </div>
+      )}
       {state.damaged && (
         <div className="notice" role="status">
           <p>That case file link is incomplete, so it can’t be shown. You’re playing the same round from the start instead.</p>
@@ -216,6 +226,7 @@ export default function App() {
             seed={seed}
             finished={finished}
             shared={state.shared}
+            previous={previous}
             onPlayAgain={() => startRun(country)}
             onDaily={() => startRun(country, dailySeed())}
             onResume={() => setTab('play')}
