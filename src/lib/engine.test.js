@@ -149,6 +149,17 @@ describe('results encoding and share links', () => {
     expect(readQuery('?c=ng&s=5&r=AAA')).toMatchObject({ results: null, damaged: true });
   });
 
+  it.each([
+    ['trailing slash', '?c=ng&s=42&r=IIAIIIAI/'],
+    ['trailing space', '?c=ng&s=42&r=IIAIIIAI%20'],
+    ['trailing full stop', '?c=ng&s=42&r=IIAIIIAI.'],
+    ['capital country', '?c=NG&s=42&r=IIAIIIAI'],
+    ['junk after the seed', '?c=ng&s=42/&r=IIAIIIAI'],
+  ])('still opens the shared case file with a %s', (_, q) => {
+    expect(readQuery(q)).toMatchObject({ country: 'ng', seed: 42, damaged: false });
+    expect(readQuery(q).results).toHaveLength(8);
+  });
+
   it('reads a link whose ampersands were HTML-escaped', () => {
     const q = readQuery('?c=ng&amp;s=42&amp;r=IIAIIIAI');
     expect(q.country).toBe('ng');

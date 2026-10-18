@@ -72,6 +72,11 @@ function Segments({ text, clues, found, onTap }) {
   });
 }
 
+/** A click on the message that lands between phrases still gets an answer from the guide. */
+function tapGap(e, onTap) {
+  if (!e.target.closest?.('.seg')) onTap(null);
+}
+
 const STAMP = {
   caught: { text: 'Scam avoided', tone: 'good' },
   trusted: { text: 'Real. Good call', tone: 'good' },
@@ -184,10 +189,10 @@ export default function Card({ card, clues, found, onTap, checking, outcome, loc
               </span>
               <span className="card-time">9:41</span>
             </header>
-            <p className="card-from">
+            <p className="card-from" onClick={e => tapGap(e, onTap)}>
               <Segments text={card.from} clues={clues} found={found} onTap={onTap} />
             </p>
-            <p className="card-body">
+            <p className="card-body" onClick={e => tapGap(e, onTap)}>
               <Segments text={card.body} clues={clues} found={found} onTap={onTap} />
             </p>
             <footer className="card-foot">

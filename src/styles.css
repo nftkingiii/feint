@@ -1642,3 +1642,58 @@ legend {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Field guide examples */
+.pattern-toggle {
+  justify-self: start;
+  border: 2px solid var(--line-2);
+  border-radius: 12px;
+  background: var(--card);
+  box-shadow: 0 3px 0 var(--line-2);
+  padding: 8px 14px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  transition: transform 90ms var(--out), box-shadow 90ms var(--out);
+}
+
+.pattern-toggle:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--line-2);
+}
+
+.pattern-examples {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  animation: pop 220ms var(--pop);
+}
+
+.pattern-examples li {
+  background: var(--canvas);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.example-from {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.example-body {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.example-clues {
+  font-size: 13px;
+  color: var(--accent-deep);
+}
+
+.pattern-none {
+  font-size: 14px;
+  color: var(--muted);
+}

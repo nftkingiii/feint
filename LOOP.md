@@ -17,3 +17,16 @@ It flagged five journeys. What each one turned out to be:
 | Trust reflects decisions | Trust stayed at 100% after a scam was mishandled | Working as defined (trust counted genuine messages only), but the label misled | Replaced Trust with **Accuracy**, "N of M right", which moves with every call |
 
 Verified locally with real mouse input before deploying; unit tests 27/27.
+
+## Run 2 · 2026-10-18 · re-run after the first fixes
+
+TestSprite flagged four journeys again. I reproduced each with Playwright (the same engine TestSprite generates tests for) against feint.vercel.app before changing anything.
+
+| Journey | What the test saw | What reproduction showed | Fix |
+|---|---|---|---|
+| Open a shared case file from a results link | "Your case file opens when the round ends", 0 of 8 | The exact link works, but a trailing `/`, a trailing space or `c=NG` dropped the results and started a fresh round | Link parsing now ignores trailing junk and capitalisation; tested with five variants |
+| Use clue tapping during a round | Clue count stayed at 0 | Role-based and text clicks mark clues, but a click in the space between phrases did nothing at all | Any click on the message now gets an answer from the guide; the PRD names the phrase buttons |
+| View pattern details in the field guide | No control to open a pattern card | Cards had nothing to open | Each card has "See N examples from <country>" that expands the full messages and their clues |
+| Use swipe gestures | The test tool cannot drag | A Playwright mouse drag swipes correctly; the tool lacked a drag action | No code change: the PRD now says swipe is an optional shortcut and the buttons are canonical |
+
+Unit tests 32/32.

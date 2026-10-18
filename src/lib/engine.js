@@ -159,11 +159,15 @@ export function shareQuery({ country, seed, results }) {
  */
 export function readQuery(search) {
   const params = new URLSearchParams(String(search ?? '').replace(/&amp;/gi, '&'));
-  const country = COUNTRY_BY_CODE[params.get('c') ?? ''] ? params.get('c') : null;
-  const seed = parseSeed(params.get('s') ?? '');
+  // Be forgiving about what links pick up when copied: a capitalised country
+  // code, or a trailing slash, space or punctuation mark after a value.
+  const code = (params.get('c') ?? '').trim().toLowerCase().replace(/[^a-z]+$/, '');
+  const country = COUNTRY_BY_CODE[code] ? code : null;
+  const seed = parseSeed((params.get('s') ?? '').trim().match(/^\d+/)?.[0] ?? '');
   if (!country || !seed) return { country, seed: null, results: null, damaged: params.has('r') };
   const deck = buildDeck(country, seed);
   const raw = params.get('r');
-  const results = decodeResults(raw ?? '', deck.length);
+  const cleaned = raw === null ? '' : raw.trim().replace(/[^ABIJabij]+$/, '');
+  const results = decodeResults(cleaned, deck.length);
   return { country, seed, results, damaged: raw !== null && results === null };
 }

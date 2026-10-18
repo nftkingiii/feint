@@ -27,18 +27,18 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 - In a round, three tabs: **Play**, **Case file**, **Field guide**. The country chip in the header returns to the country picker.
 - The address bar always reflects the round: `/?c=<country>&s=<seed>` while playing, plus `&r=<results>` once finished.
 - Country codes: `ng`, `us`, `gb`, `global`. An unknown code (e.g. `/?c=zz`) shows the country picker.
-- Links still work if their ampersands were HTML-escaped (`/?c=ng&amp;s=42&amp;r=IIAIIIAI` opens the same shared case file); the address bar is cleaned up to plain `&`.
+- Links are forgiving about what copying adds: HTML-escaped ampersands (`&amp;`), a capitalised country code (`c=NG`), and a trailing slash, space or full stop after a value all still open the same round or shared case file.
 
 ## Play screen
 
 - Header line: "Message N of 8 · a text / WhatsApp message / call / email", then a one-line situation in large serif type.
 - The message card shows a channel badge, the sender and the message.
-- **Clue tapping:** every part of the sender and message is tappable. Tapping a real clue highlights it in yellow, the card footer changes to "1 clue marked" (2, 3…), and the guide "Vee" explains it. Tapping a plain part makes Vee say "Nothing odd there. Keep looking, or decide."
+- **Clue tapping:** the sender and message are split into phrases, and each phrase is a button (role `button`, named by its text, e.g. the button "0803 ••• 4471"). Tapping a real clue highlights it in yellow, the card footer changes to "1 clue marked" (2, 3…), the Clues marked meter goes up by one, and the guide "Vee" explains it. Tapping a plain phrase, or the space between phrases, makes Vee say "Nothing odd there. Keep looking, or decide." Marking clues never blocks deciding: the act, check and ignore buttons stay available.
 - **Decisions:** three buttons on the right (desktop) or under the card (mobile):
   - the act button, labelled with what acting means for that message (e.g. "Hand over the phone"), keyboard **A**;
   - **Check first**, keyboard **C**;
   - **Ignore it**, keyboard **I**.
-- **Swipe:** dragging the card right past the threshold acts; dragging left ignores. A short drag springs back.
+- **Swipe (optional shortcut):** dragging the card right past the threshold acts; dragging left ignores; a short drag springs back. Swiping does exactly what the act and ignore buttons do, so the buttons (and the A and I keys) are the canonical way to decide. Automated tests that cannot drag should use the buttons.
 - **Check first** flips the card to its back: "Checked through a channel you trust", a heading (e.g. "Your banking app") and evidence lines. **Back to the message** (or C / Escape) flips it back. The act and ignore decisions still work while the check is showing.
 - **After a correct decision:** a green stamp on the card ("Scam avoided" or "Real. Good call"), Vee explains the tell, and a **Next message** button (Enter). After the last message the button reads **See your case file**.
 - **After ignoring a genuine message:** an amber stamp "That was real".
@@ -58,7 +58,7 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 
 ## Field guide
 
-Ten pattern cards (e.g. "The fake payment alert", "Verify or be frozen", "The new number"), each with the trick, "The tell", an example message from the chosen country when one exists, and source links.
+Ten pattern cards (e.g. "The fake payment alert", "Verify or be frozen", "The new number"), each with the trick, "The tell" and source links. A card with local examples has a button such as "See 2 examples from Nigeria" (aria-expanded false); pressing it opens the full example messages with their sender and clues, and the button changes to "Hide examples". A card with no local example says "No example in the <country> deck yet." In Nigeria, "The official who wants paying" has 2 examples (CBN Youth Grant Desk, EFCC officer).
 
 ## Fixed test anchors
 
