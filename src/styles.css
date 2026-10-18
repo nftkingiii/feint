@@ -757,6 +757,17 @@ legend {
   box-shadow: 0 26px 44px -26px rgba(31, 28, 24, 0.45);
 }
 
+/* Hide the face that is turned away, so nothing behind it looks covered.
+   The switch happens mid-flip, when the card is edge-on. */
+.card:not(.flipped) .card-face.back,
+.card.flipped .card-face.front {
+  visibility: hidden;
+}
+
+.card-face {
+  transition: visibility 0s linear 130ms;
+}
+
 .card-face.back {
   transform: rotateY(180deg);
   background: var(--accent);

@@ -87,3 +87,16 @@ Unit tests 40/40. Playwright against the preview 16/16 (desktop and phone). Push
 | Swipe, check before acting (blocked) | Tool limits | Not app bugs | Swipe test should press the arrow keys |
 
 Unit tests 41/41. Playwright 20/22 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).
+
+## Run 8 · 2026-10-18 · PR #5 after phrases became buttons
+
+44 tests: 38 passed, 5 failed, 1 blocked. This run started from the push, before the edited test plan was saved, so the keyboard test still had its old steps.
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Mark clues / clue tapping to case file | The agent listed "Back to the message" as a control but no phrase buttons | Real bug: the turned-away back of the card sat on top of the message, so the phrases looked covered | The turned-away face is now hidden (switched mid-flip); the card wrapper is no longer a focus stop. Playwright checks only the showing face can be used |
+| Ignore a genuine message and continue | On a random round the agent took a scam bank alert for a genuine one; the game said "Scam avoided" correctly | Test assumption | Test now uses `/?c=ng&s=42`, message 3 (genuine) |
+| Reflect trust changes | Looked for a Trust meter, which became Accuracy in run 4 | Out-of-date test | Test now checks Accuracy |
+| Keyboard shortcuts | Old steps (I alone should advance) | Test assumption | Test plan edited: I, then Enter |
+
+Unit tests 41/41. Playwright 22/24 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).

@@ -191,7 +191,6 @@ export default function Card({ card, clues, found, onTap, checking, outcome, loc
         className={`card ${checking ? 'flipped' : ''} ${leaving ? 'leaving' : ''}`}
         style={style}
         role="group"
-        tabIndex={0}
         aria-label="Message card. Swipe right or press the right arrow key to act; swipe left or press the left arrow key to ignore."
         aria-keyshortcuts="ArrowRight ArrowLeft"
         onPointerDown={onPointerDown}

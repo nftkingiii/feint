@@ -29,3 +29,15 @@ test('after the round, the Play tab lists the messages again', async ({ page }) 
   await expect(page.getByRole('heading', { name: 'Your messages' })).toBeVisible();
   await expect(page.locator('.review-item')).toHaveCount(8);
 });
+
+test('only the face of the card that is showing can be used', async ({ page }) => {
+  await page.goto('/?c=us&s=7');
+  await expect(page.getByRole('button', { name: 'Back to the message' })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'send $400' })).toBeVisible();
+  await page.getByRole('button', { name: 'Check first' }).click();
+  await expect(page.getByRole('button', { name: 'Back to the message' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'send $400' })).toBeHidden();
+  await page.getByRole('button', { name: 'Back to the message' }).click();
+  await page.getByRole('button', { name: 'send $400' }).click();
+  await expect(page.locator('.card-foot')).toHaveText('1 clue marked');
+});
