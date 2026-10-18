@@ -67,8 +67,8 @@ export default function Play(props) {
         />
         {!feedback && !checking && (
           <p className="swipe-hint" aria-hidden="true">
-            <span>← Drag left to ignore</span>
-            <span>Drag right to act →</span>
+            <span>Drag left or press ← to ignore</span>
+            <span>Drag right or press → to act</span>
           </p>
         )}
       </div>

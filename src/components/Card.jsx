@@ -102,6 +102,36 @@ export default function Card({ card, clues, found, onTap, checking, outcome, loc
 
   const canSwipe = !locked && !checking;
 
+  // Throw the card off-screen, then report the decision. Shared by drag and arrow keys.
+  function commitSwipe(decision) {
+    if (prefersReducedMotion()) {
+      setDx(0);
+      onSwipe(decision);
+      return;
+    }
+    setLeaving(decision);
+    setTimeout(() => {
+      setLeaving(null);
+      setDx(0);
+      onSwipe(decision);
+    }, 180);
+  }
+
+  // The arrow keys swipe the card exactly like a drag does (right acts, left
+  // ignores), for keyboard players and for tools that cannot drag.
+  useEffect(() => {
+    if (!canSwipe) return undefined;
+    function onKey(e) {
+      if (e.metaKey || e.ctrlKey || e.altKey || leaving) return;
+      if (['INPUT', 'TEXTAREA'].includes(e.target?.tagName)) return;
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault();
+      commitSwipe(e.key === 'ArrowRight' ? 'act' : 'ignore');
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
   function onPointerDown(e) {
     // A drag that ended without a click event must not swallow this new tap.
     suppressClick.current = false;
@@ -126,18 +156,7 @@ export default function Card({ card, clues, found, onTap, checking, outcome, loc
     if (!d || !d.moved) return;
     suppressClick.current = true;
     if (Math.abs(dx) >= SWIPE_AT) {
-      const decision = dx > 0 ? 'act' : 'ignore';
-      if (prefersReducedMotion()) {
-        setDx(0);
-        onSwipe(decision);
-      } else {
-        setLeaving(decision);
-        setTimeout(() => {
-          setLeaving(null);
-          setDx(0);
-          onSwipe(decision);
-        }, 180);
-      }
+      commitSwipe(dx > 0 ? 'act' : 'ignore');
     } else {
       setDx(0);
     }
@@ -169,6 +188,10 @@ export default function Card({ card, clues, found, onTap, checking, outcome, loc
       <div
         className={`card ${checking ? 'flipped' : ''} ${leaving ? 'leaving' : ''}`}
         style={style}
+        role="group"
+        tabIndex={0}
+        aria-label="Message card. Swipe right or press the right arrow key to act; swipe left or press the left arrow key to ignore."
+        aria-keyshortcuts="ArrowRight ArrowLeft"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

@@ -39,7 +39,8 @@ Anyone with a phone and a bank account, especially people new to mobile money or
   - the act button, labelled with what acting means for that message (e.g. "Hand over the phone"), keyboard **A**;
   - **Check first**, keyboard **C**;
   - **Ignore it**, keyboard **I**.
-- **Swipe (optional shortcut):** dragging the card right past the threshold acts; dragging left ignores; a short drag springs back. Swiping does exactly what the act and ignore buttons do, so the buttons (and the A and I keys) are the canonical way to decide. Automated tests that cannot drag should use the buttons.
+- **Swipe:** dragging the card right past the threshold acts; dragging left ignores; a short drag springs back. **The arrow keys swipe too:** pressing → throws the card right (act) and ← throws it left (ignore), with the same animation, stamp and outcome as a drag. The card is a focusable group labelled "Message card. Swipe right or press the right arrow key to act; swipe left or press the left arrow key to ignore." Tools that cannot drag can verify swiping with the arrow keys. The hint under the card reads "Drag left or press ← to ignore" and "Drag right or press → to act".
+- **Swipe check (Nigeria seed 42):** press → on message 1 (a scam) → stamp "Feinted"; **Take the loss**; press ← on message 2 (a scam) → stamp "Scam avoided"; **Next message** shows "Message 3 of 8".
 - **Check first** flips the card to its back: "Checked through a channel you trust", a heading (e.g. "Your banking app") and evidence lines. **Back to the message** (or C / Escape) flips it back. The act and ignore decisions still work while the check is showing.
 - **After a correct decision:** a green stamp on the card ("Scam avoided" or "Real. Good call"), Vee explains the tell, and a **Next message** button (Enter). After the last message the button reads **See your case file**.
 - **After ignoring a genuine message:** an amber stamp "That was real".

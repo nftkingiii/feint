@@ -39,3 +39,11 @@ Unit tests 32/32.
 | Open a shared case file from a results link | Started on the landing page and found no results link to follow | Real gap for first-time visitors and judges: nothing on the landing page shows how a round ends | Added "See an example case file" on the landing page, linking to a finished Nigeria round |
 
 Unit tests 35/35 (new: round memory, including blocked storage).
+
+## Run 4 · 2026-10-18 · swipe blocked in automation
+
+| Journey | What the test saw | Root cause | Fix |
+|---|---|---|---|
+| Use swipe gestures to act and ignore | Blocked: the test browser cannot drag | The test tool has no drag action; the gesture itself works (verified with a Playwright mouse drag in run 2) | Arrow keys now swipe the card with the same animation and outcome, and the card is a labelled, focusable group, so swiping is reachable from the keyboard and verifiable by tools that cannot drag |
+
+Shared-case-file journeys from run 3 re-checked live afterwards.
