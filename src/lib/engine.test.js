@@ -190,6 +190,16 @@ describe('summarize', () => {
     expect(g.rank).toBe('Easy mark');
   });
 
+  it('gives the money back after a rewind but still counts the card as fooled', () => {
+    const deck = buildDeck('us', 7);
+    const results = deck.map(c => ({ decision: c.kind === 'scam' ? 'ignore' : 'act', verified: false }));
+    const scam = deck.findIndex(c => c.kind === 'scam');
+    results[scam] = { ...results[scam], rewound: true };
+    const s = summarize(deck, results);
+    expect(s.fooled).toBe(1);
+    expect(s.lossTaken).toBe(0);
+  });
+
   it('counts a card answered right only after a rewind as fooled', () => {
     const deck = buildDeck('us', 3);
     const perfect = deck.map(c => ({ decision: c.kind === 'scam' ? 'ignore' : 'act', verified: false }));

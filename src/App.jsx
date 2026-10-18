@@ -44,12 +44,11 @@ export default function App() {
   // A finished result for this same round, remembered from an earlier visit in this browser.
   const previous = useMemo(() => (country && seed && !state.shared ? recallRound(country, seed) : null), [country, seed, state.shared]);
 
-  // Savings lost: every committed loss, plus the one on screen until the player rewinds.
+  // Savings lost: every loss the player took, plus the one on screen until they rewind.
+  // A rewind gives the money back for good; it still counts as fooled for accuracy.
   const lost =
-    results.reduce((sum, r, i) => {
-      const fooled = r.rewound || judge(deck[i], r.decision) === 'fooled';
-      return sum + (fooled ? deck[i].lossAmount ?? 0 : 0);
-    }, 0) + (feedback?.outcome === 'fooled' ? card.lossAmount : 0);
+    results.reduce((sum, r, i) => sum + (judge(deck[i], r.decision) === 'fooled' ? deck[i].lossAmount ?? 0 : 0), 0) +
+    (feedback?.outcome === 'fooled' ? card.lossAmount : 0);
   const cluesSoFar = results.reduce((n, r) => n + (r.clues ?? 0), 0) + found.size;
 
   // Keep the address bar in step so any moment of a run can be shared or reloaded.

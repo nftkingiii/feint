@@ -73,3 +73,17 @@ Unit tests 40/40. Pushed to the PR branch, so the check re-runs on the PR.
 | Swipe (blocked) | TestSprite's browser cannot drag | Tool limit | Arrow keys already swipe; the test should press them. Playwright covers the drag itself |
 
 Unit tests 40/40. Playwright against the preview 16/16 (desktop and phone). Pushed to the PR branch, so the check re-runs.
+
+## Run 7 · 2026-10-18 · PR #5 after the solid-phrase fix
+
+44 tests: 36 passed, 6 failed, 2 blocked. The merge gate held the PR.
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Update savings after a wrong decision and rewind | Rewind put savings back to $8,000, then the next message showed $6,800 again | Real bug: the meter and case file still charged a rewound card | A rewind now gives the money back for good; it still counts as fooled for accuracy and rank. Unit test and Playwright test added |
+| Mark clues (three tests) | The agent did not see the phrases as controls ("not available as an interactive control") | Real gap: phrases were spans with a help cursor | Every phrase is now a real button with a pointer cursor; Playwright clicks "send $400" by its button role |
+| Return to the play screen from the case file | The test wanted to see the messages again after the round | Reasonable request | The Play tab now lists all 8 messages under "That was the last message." with how each went |
+| Keyboard shortcuts | After pressing I, the test expected the round to move on without Next | Test assumption | Not reproduced: I, then Enter (or Space) moves to message 2 in Playwright |
+| Swipe, check before acting (blocked) | Tool limits | Not app bugs | Swipe test should press the arrow keys |
+
+Unit tests 41/41. Playwright 20/22 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).

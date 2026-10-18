@@ -1,10 +1,17 @@
 import { useEffect } from 'react';
 import { CLUES } from '../data/clues.js';
 import { PATTERN_BY_ID } from '../data/patterns.js';
-import { dailyLabel, formatMoney } from '../lib/engine.js';
+import { dailyLabel, formatMoney, summarize } from '../lib/engine.js';
 import Card from './Card.jsx';
 import Guide from './Guide.jsx';
 import Meters from './Meters.jsx';
+
+const REVIEW = {
+  caught: { label: 'Scam avoided', tone: 'good' },
+  trusted: { label: 'Real, trusted', tone: 'good' },
+  missed: { label: 'Real, ignored', tone: 'warn' },
+  fooled: { label: 'Fooled', tone: 'bad' },
+};
 
 const CHANNEL_NOUN = { sms: 'text', whatsapp: 'WhatsApp message', call: 'call', email: 'email' };
 
@@ -45,6 +52,23 @@ export default function Play(props) {
             <span>Play today’s case</span>
           </button>
         </div>
+        <section className="review" aria-labelledby="review-title">
+          <h3 id="review-title">Your messages</h3>
+          <ol className="review-list">
+            {summarize(deck, results).rows.map((row, i) => (
+              <li key={row.card.id} className="review-item">
+                <p className="review-head">
+                  <span className="review-num">Message {i + 1}</span>
+                  <span className={`chip ${REVIEW[row.outcome].tone}`}>
+                    {row.rewound ? 'Fooled, caught on rewind' : REVIEW[row.outcome].label}
+                  </span>
+                </p>
+                <p className="review-from">{row.card.from}</p>
+                <p className="review-body">{row.card.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
       </div>
     );
   }

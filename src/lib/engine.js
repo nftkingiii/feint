@@ -122,7 +122,8 @@ export function summarize(deck, results) {
     lossAvoided: rows
       .filter(r => r.outcome === 'caught')
       .reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
-    lossTaken: fooled.reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
+    // Money only goes when the player takes the loss; a rewind gives it back.
+    lossTaken: fooled.filter(r => !r.rewound).reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
     rank: rankFor(correct, rows.length),
   };
 }

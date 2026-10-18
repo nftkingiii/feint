@@ -832,9 +832,17 @@ legend {
 .seg {
   display: inline-block;
   max-width: 100%;
+  margin: 0;
+  border: 0;
   border-radius: 4px;
   padding: 1px 0;
-  cursor: help;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   transition: background 150ms;
@@ -1787,4 +1795,53 @@ legend {
   font-family: var(--sans);
   font-size: 15px;
   line-height: 1.6;
+}
+
+/* The messages again, listed under "That was the last message." */
+.review {
+  margin-top: 32px;
+  text-align: left;
+}
+
+.review h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 24px;
+  margin: 0 0 12px;
+}
+
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.review-item {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.review-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.review-from {
+  margin: 0 0 2px;
+  font-weight: 600;
+}
+
+.review-body {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
 }
