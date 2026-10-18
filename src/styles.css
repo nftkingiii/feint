@@ -825,7 +825,13 @@ legend {
 }
 
 /* Every part of the message is tappable, so the layout never gives clues away. */
+/* Each phrase is a solid box: a phrase that would wrap moves to the next
+   line whole (or wraps inside its own box), so the centre of its box is
+   always on the phrase. A wrapped inline span has a box whose centre can
+   land on a neighbouring phrase, which made centre-of-box clicks miss. */
 .seg {
+  display: inline-block;
+  max-width: 100%;
   border-radius: 4px;
   padding: 1px 0;
   cursor: help;
