@@ -1,129 +1,154 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
+import { CLUES } from '../data/clues.js';
 import { PATTERN_BY_ID } from '../data/patterns.js';
 import { formatMoney } from '../lib/engine.js';
-import Message from './Message.jsx';
+import Card from './Card.jsx';
+import Guide from './Guide.jsx';
+import Meters from './Meters.jsx';
 
-export default function Play({
-  country,
-  deck,
-  index,
-  card,
-  finished,
-  verified,
-  feedback,
-  onCheck,
-  onDecide,
-  onRewind,
-  onNext,
-  onShowCase,
-}) {
+const CHANNEL_NOUN = { sms: 'text', whatsapp: 'WhatsApp message', call: 'call', email: 'email' };
+
+/** What Vee says right now, and how Vee looks saying it. */
+function guideLine({ index, card, feedback, checking, lastTap }) {
+  if (feedback) {
+    const tell = card.tell;
+    if (feedback.outcome === 'caught') return { mood: 'happy', text: `Nice catch. ${tell}` };
+    if (feedback.outcome === 'trusted') return { mood: 'happy', text: `Good call. Not everything is a scam: ${tell.charAt(0).toLowerCase()}${tell.slice(1)}` };
+    if (feedback.outcome === 'missed') return { mood: 'worried', text: `That one was real. ${tell}` };
+    return { mood: 'worried', text: `Ouch. ${tell}` };
+  }
+  if (checking) return { mood: 'calm', text: 'This is the channel you already trust. Does it agree with the message?' };
+  if (lastTap) return lastTap;
+  if (index === 0) return { mood: 'calm', text: 'Read it the way a scammer would write it. Tap anything that looks off, then decide.' };
+  return { mood: 'calm', text: 'What do you notice? Tap anything that looks off.' };
+}
+
+export default function Play(props) {
+  const { country, deck, results, index, card, finished, checking, verified, feedback, found, lastTap, lost, cluesSoFar } = props;
+  const { onTap, onCheck, onCloseCheck, onDecide, onRewind, onNext, onShowCase } = props;
+
+  useShortcuts({ card, feedback, finished, checking, onCheck, onCloseCheck, onDecide, onRewind, onNext });
+
   if (finished) {
     return (
-      <div className="empty">
+      <div className="round-done">
         <h2>That was the last message.</h2>
-        <button className="primary" onClick={onShowCase}>
+        <button className="btn primary" onClick={onShowCase}>
           Open your case file
         </button>
       </div>
     );
   }
 
+  const clues = CLUES[card.id] ?? [];
+  const line = guideLine({ index, card, feedback, checking, lastTap });
+
   return (
-    <div className="play">
-      <p className="progress" aria-live="polite">
-        Message {index + 1} of {deck.length}
-      </p>
-      <p className="context">{card.context}</p>
+    <div className="desk">
+      <aside className="desk-left">
+        <Meters country={country} deck={deck} results={results} index={index} lost={lost} cluesSoFar={cluesSoFar} />
+      </aside>
 
-      <Message card={card} />
-
-      {!feedback && (
-        <div className="actions" role="group" aria-label="What do you do?">
-          <button className="action act" onClick={() => onDecide('act')}>
-            {card.act}
-          </button>
-          <button className="action check" onClick={onCheck}>
-            {verified ? 'See what you checked' : 'Check first'}
-          </button>
-          <button className="action ignore" onClick={() => onDecide('ignore')}>
-            Ignore it
-          </button>
-        </div>
-      )}
-
-      {feedback && feedback.outcome === 'fooled' && (
-        <Feinted country={country} card={card} onRewind={onRewind} onNext={onNext} />
-      )}
-      {feedback && feedback.outcome !== 'fooled' && (
-        <Verdict outcome={feedback.outcome} card={card} last={index === deck.length - 1} onNext={onNext} />
-      )}
-    </div>
-  );
-}
-
-const VERDICT_COPY = {
-  caught: { title: 'Scam avoided.', tone: 'good' },
-  trusted: { title: 'Right call, it was real.', tone: 'good' },
-  missed: { title: 'That one was real.', tone: 'warn' },
-};
-
-function Verdict({ outcome, card, last, onNext }) {
-  const copy = VERDICT_COPY[outcome];
-  const pattern = PATTERN_BY_ID[card.pattern];
-  const ref = useFocus();
-  return (
-    <div className={`verdict ${copy.tone}`} role="status" ref={ref} tabIndex={-1}>
-      <h2>{copy.title}</h2>
-      {card.kind === 'scam' && <p className="pattern-name">{pattern.name}</p>}
-      <p>{card.tell}</p>
-      <button className="primary" onClick={onNext}>
-        {last ? 'See your case file' : 'Next message'}
-      </button>
-    </div>
-  );
-}
-
-/** The fail screen: exactly what the scammer got, the clue that was missed, and a rewind. */
-function Feinted({ country, card, onRewind, onNext }) {
-  const pattern = PATTERN_BY_ID[card.pattern];
-  const ref = useFocus();
-  return (
-    <div className="feinted" role="alertdialog" aria-labelledby="feinted-title" ref={ref} tabIndex={-1}>
-      <h2 id="feinted-title">You were feinted.</h2>
-      <dl className="loss">
-        <div>
-          <dt>What they got</dt>
-          <dd>{card.loss}</dd>
-        </div>
-        <div>
-          <dt>Illustrative cost</dt>
-          <dd className="num">{formatMoney(card.lossAmount, country)}</dd>
-        </div>
-        <div>
-          <dt>The trick</dt>
-          <dd>{pattern.name}</dd>
-        </div>
-        <div>
-          <dt>The clue you missed</dt>
-          <dd>{card.tell}</dd>
-        </div>
-      </dl>
-      <div className="feinted-actions">
-        <button className="primary" onClick={onRewind}>
-          Rewind and try again
-        </button>
-        <button className="secondary" onClick={onNext}>
-          Keep the loss and move on
-        </button>
+      <div className="desk-center">
+        <p className="situation-label">
+          Message {index + 1} of {deck.length} · a {CHANNEL_NOUN[card.channel]}
+        </p>
+        <p className="situation">{card.context}</p>
+        <Card
+          card={card}
+          clues={clues}
+          found={found}
+          onTap={onTap}
+          checking={checking}
+          outcome={feedback?.outcome ?? null}
+          locked={Boolean(feedback)}
+          onSwipe={onDecide}
+          onCloseCheck={onCloseCheck}
+        />
+        {!feedback && !checking && (
+          <p className="swipe-hint" aria-hidden="true">
+            <span>← Drag left to ignore</span>
+            <span>Drag right to act →</span>
+          </p>
+        )}
       </div>
+
+      <aside className="desk-right">
+        <Guide mood={line.mood}>{line.text}</Guide>
+
+        {!feedback && (
+          <div className="decisions" role="group" aria-label="What do you do?">
+            <button className="chunky act" onClick={() => onDecide('act')} aria-keyshortcuts="A">
+              <span>{card.act}</span>
+              <kbd aria-hidden="true">A</kbd>
+            </button>
+            <button
+              className="chunky check"
+              onClick={checking ? onCloseCheck : onCheck}
+              aria-keyshortcuts="C"
+              aria-pressed={checking}
+            >
+              <span>{checking ? 'Back to the message' : verified ? 'Look at your check again' : 'Check first'}</span>
+              <kbd aria-hidden="true">C</kbd>
+            </button>
+            <button className="chunky ignore" onClick={() => onDecide('ignore')} aria-keyshortcuts="I">
+              <span>Ignore it</span>
+              <kbd aria-hidden="true">I</kbd>
+            </button>
+          </div>
+        )}
+
+        {feedback?.outcome === 'fooled' && (
+          <div className="loss-panel" role="alert">
+            <p className="loss-amount num">−{formatMoney(card.lossAmount, country)}</p>
+            <p className="loss-what">{card.loss}</p>
+            <p className="loss-trick">The trick: {PATTERN_BY_ID[card.pattern].name}</p>
+            <p className="loss-note">Amounts are illustrative.</p>
+            <div className="panel-actions">
+              <button className="chunky primary" onClick={onRewind} autoFocus>
+                <span>Rewind and try again</span>
+                <kbd aria-hidden="true">R</kbd>
+              </button>
+              <button className="chunky plain" onClick={onNext}>
+                <span>Take the loss</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {feedback && feedback.outcome !== 'fooled' && (
+          <div className="panel-actions">
+            <button className="chunky primary" onClick={onNext} autoFocus>
+              <span>{index === deck.length - 1 ? 'See your case file' : 'Next message'}</span>
+              <kbd aria-hidden="true">Enter</kbd>
+            </button>
+          </div>
+        )}
+      </aside>
     </div>
   );
 }
 
-function useFocus() {
-  const ref = useRef(null);
+/** A / C / I to decide, R to rewind, Enter for the next message, Escape to close a check. */
+function useShortcuts({ card, feedback, finished, checking, onCheck, onCloseCheck, onDecide, onRewind, onNext }) {
   useEffect(() => {
-    ref.current?.focus();
-  }, []);
-  return ref;
+    function onKey(e) {
+      if (finished || !card || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (['INPUT', 'TEXTAREA'].includes(e.target?.tagName)) return;
+      const key = e.key.toLowerCase();
+      let handled = true;
+      if (!feedback) {
+        if (key === 'a') onDecide('act');
+        else if (key === 'i') onDecide('ignore');
+        else if (key === 'c') (checking ? onCloseCheck : onCheck)();
+        else if (key === 'escape' && checking) onCloseCheck();
+        else handled = false;
+      } else if (key === 'r' && feedback.outcome === 'fooled') onRewind();
+      else if (key === 'enter' && e.target?.tagName !== 'BUTTON') onNext();
+      else handled = false;
+      if (handled) e.preventDefault();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [card, feedback, finished, checking, onCheck, onCloseCheck, onDecide, onRewind, onNext]);
 }

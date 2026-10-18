@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { COUNTRIES } from '../data/countries.js';
 import { PATTERN_BY_ID } from '../data/patterns.js';
 import { SOURCES } from '../data/sources.js';
+import { CLUES } from '../data/clues.js';
 import {
   buildDeck,
   dailySeed,
@@ -40,6 +41,36 @@ describe('content', () => {
     }
     for (const c of COUNTRIES) {
       for (const line of c.report) if (line.source) expect(SOURCES[line.source]).toBeTruthy();
+    }
+  });
+});
+
+describe('clues', () => {
+  it('every scam card has at least one clue and genuine cards have none', () => {
+    for (const c of COUNTRIES) {
+      for (const card of c.cards) {
+        if (card.kind === 'scam') expect(CLUES[card.id]?.length, card.id).toBeGreaterThan(0);
+        else expect(CLUES[card.id], card.id).toBeUndefined();
+      }
+    }
+  });
+
+  it('every clue appears exactly in the card sender or message', () => {
+    const cards = Object.fromEntries(COUNTRIES.flatMap(c => c.cards).map(card => [card.id, card]));
+    for (const [id, clues] of Object.entries(CLUES)) {
+      expect(cards[id], id).toBeTruthy();
+      for (const clue of clues) {
+        const found = cards[id].body.includes(clue.text) || cards[id].from.includes(clue.text);
+        expect(found, `${id}: "${clue.text}"`).toBe(true);
+        expect(clue.note.length).toBeGreaterThan(10);
+      }
+    }
+  });
+
+  it('each country deck has a wallet that covers every possible loss', () => {
+    for (const c of COUNTRIES) {
+      const worst = c.cards.filter(card => card.kind === 'scam').reduce((n, card) => n + card.lossAmount, 0);
+      expect(c.wallet, c.code).toBeGreaterThanOrEqual(worst);
     }
   });
 });

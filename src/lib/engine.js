@@ -117,6 +117,8 @@ export function summarize(deck, results) {
     missed: rows.filter(r => r.outcome === 'missed').length,
     verified: rows.filter(r => r.verified).length,
     rewound: rows.filter(r => r.rewound).length,
+    // Clue counts live only in the browser session; a shared link does not carry them.
+    clues: results.some(r => typeof r.clues === 'number') ? results.reduce((n, r) => n + (r.clues ?? 0), 0) : null,
     lossAvoided: rows
       .filter(r => r.outcome === 'caught')
       .reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),

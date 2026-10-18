@@ -14,6 +14,8 @@ const NG = {
   name: 'Nigeria',
   flag: '🇳🇬',
   currency: 'NGN',
+  wallet: 1000000,
+  walletLabel: 'Savings',
   locale: 'en-NG',
   report: [
     {
@@ -212,6 +214,8 @@ const US = {
   flag: '🇺🇸',
   currency: 'USD',
   locale: 'en-US',
+  wallet: 8000,
+  walletLabel: 'Savings',
   report: [
     { text: 'Report it at ReportFraud.ftc.gov.', href: 'https://reportfraud.ftc.gov', source: 'ftc-2025' },
     { text: 'Forward scam texts to 7726 (SPAM) so your carrier can block them.', source: 'ftc-2025' },
@@ -389,6 +393,8 @@ const GB = {
   name: 'United Kingdom',
   flag: '🇬🇧',
   currency: 'GBP',
+  wallet: 7000,
+  walletLabel: 'Savings',
   locale: 'en-GB',
   report: [
     { text: 'Forward suspicious HMRC texts to 60599 and emails to phishing@hmrc.gov.uk.', source: 'gov-uk-hmrc' },
@@ -568,6 +574,8 @@ const GLOBAL = {
   flag: '🌍',
   currency: 'USD',
   locale: 'en',
+  wallet: 5000,
+  walletLabel: 'Savings',
   report: [{ text: 'Call your bank on the number printed on your card, and report the scam to your national police or consumer agency.' }],
   cards: [
     {

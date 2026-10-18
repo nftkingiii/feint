@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { COUNTRIES } from '../data/countries.js';
+import Guide from './Guide.jsx';
 
 /** Best guess from the browser's region, used only to pre-select; the player always confirms. */
 function guessCountry() {
@@ -8,48 +9,76 @@ function guessCountry() {
   return COUNTRIES.some(c => c.code === region) ? region : 'global';
 }
 
+const HINTS = {
+  ng: 'Credit alerts, POS reversals, BVN, fake EFCC',
+  us: 'Toll texts, task jobs, fake fraud alerts',
+  gb: 'HMRC refunds, Royal Mail fees, "Hi Mum"',
+  global: 'The ten universal tricks',
+};
+
 export default function CountryPicker({ onPick }) {
   const [choice, setChoice] = useState(guessCountry);
 
   return (
-    <div className="picker">
-      <h2 className="hero-title">Spot the scam before it spots you.</h2>
-      <p className="hero-lede">
-        Eight messages land on your phone. Some are scams built the way they are sent where you live. Some are real.
-        Decide what to do with each one.
-      </p>
+    <div className="landing">
+      <div className="landing-copy">
+        <h1 className="hero-title">
+          Spot the scam <span>before it spots you.</span>
+        </h1>
+        <p className="hero-lede">
+          Eight messages, built the way scams are really sent where you live, mixed with real ones. Mark the clues, check
+          what you can, then swipe: act or ignore.
+        </p>
 
-      <form
-        className="picker-form"
-        onSubmit={e => {
-          e.preventDefault();
-          onPick(choice);
-        }}
-      >
-        <fieldset>
-          <legend>Where do you live?</legend>
-          <div className="country-grid">
-            {COUNTRIES.map(c => (
-              <label key={c.code} className={choice === c.code ? 'country-option selected' : 'country-option'}>
-                <input
-                  type="radio"
-                  name="country"
-                  value={c.code}
-                  checked={choice === c.code}
-                  onChange={() => setChoice(c.code)}
-                />
-                <span className="flag" aria-hidden="true">
-                  {c.flag}
-                </span>
-                <span>{c.name}</span>
-              </label>
-            ))}
+        <form
+          className="picker"
+          onSubmit={e => {
+            e.preventDefault();
+            onPick(choice);
+          }}
+        >
+          <fieldset>
+            <legend>Where do you live?</legend>
+            <div className="country-list">
+              {COUNTRIES.map(c => (
+                <label key={c.code} className={choice === c.code ? 'country selected' : 'country'}>
+                  <input type="radio" name="country" value={c.code} checked={choice === c.code} onChange={() => setChoice(c.code)} />
+                  <span className="code-badge" aria-hidden="true">
+                    {c.code === 'global' ? '◎' : c.code.toUpperCase()}
+                  </span>
+                  <span className="country-text">
+                    <span className="country-name">{c.name}</span>
+                    <span className="country-hint">{HINTS[c.code]}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <button type="submit" className="chunky primary large">
+            <span>Start playing</span>
+          </button>
+        </form>
+      </div>
+
+      <div className="landing-demo" aria-hidden="true">
+        <div className="demo-stack">
+          <div className="demo-card back" />
+          <div className="demo-card mid" />
+          <div className="demo-card top">
+            <p className="demo-channel">Text message</p>
+            <p className="demo-from">
+              <mark>BANK-ALERT</mark>
+            </p>
+            <p className="demo-body">
+              Your account will be <mark>SUSPENDED in 24hrs</mark> due to incomplete BVN. Update now:{' '}
+              <mark>bvn-update-ng.com</mark>
+            </p>
+            <p className="demo-foot">3 clues marked</p>
+            <span className="demo-stamp">Scam avoided</span>
           </div>
-        </fieldset>
-        <button type="submit" className="primary">
-          Start playing
-        </button>
-      </form>
+        </div>
+        <Guide mood="happy">A deadline, a link and a PIN request. Banks never do that.</Guide>
+      </div>
     </div>
   );
 }
