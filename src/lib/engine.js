@@ -1,0 +1,147 @@
+import { COUNTRY_BY_CODE } from '../data/countries.js';
+
+export const DECK_SIZE = 8;
+const MIN_GENUINE = 2;
+
+/** Small, fast, deterministic PRNG so a seed always deals the same deck. */
+export function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function shuffle(items, rand) {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/** A seed is a positive 31-bit integer; anything else is rejected. */
+export function parseSeed(value) {
+  if (typeof value !== 'string' || !/^\d{1,10}$/.test(value)) return null;
+  const n = Number(value);
+  return n >= 1 && n <= 2147483647 ? n : null;
+}
+
+export function randomSeed() {
+  return 1 + Math.floor(Math.random() * 2147483646);
+}
+
+/** One seed per calendar day (UTC), e.g. 2026-10-18 -> 20261018. */
+export function dailySeed(date = new Date()) {
+  return date.getUTCFullYear() * 10000 + (date.getUTCMonth() + 1) * 100 + date.getUTCDate();
+}
+
+/**
+ * Deal a deck for a country: up to DECK_SIZE cards with at least MIN_GENUINE
+ * genuine messages, so "it's always a scam" never wins. Same country and seed
+ * always give the same deck in the same order.
+ */
+export function buildDeck(countryCode, seed) {
+  const country = COUNTRY_BY_CODE[countryCode];
+  if (!country) throw new Error(`Unknown country: ${countryCode}`);
+  const rand = mulberry32(seed);
+  const genuine = shuffle(country.cards.filter(c => c.kind === 'genuine'), rand);
+  const scams = shuffle(country.cards.filter(c => c.kind === 'scam'), rand);
+  const size = Math.min(DECK_SIZE, country.cards.length);
+  const genuineCount = Math.min(genuine.length, MIN_GENUINE);
+  const picked = [...genuine.slice(0, genuineCount), ...scams.slice(0, size - genuineCount)];
+  return shuffle(picked, rand);
+}
+
+/**
+ * What a decision means for a card:
+ *  - caught: ignored a scam            (correct)
+ *  - trusted: acted on a genuine one   (correct)
+ *  - fooled: acted on a scam           (wrong, costly)
+ *  - missed: ignored a genuine one     (wrong, but nothing stolen)
+ */
+export function judge(card, decision) {
+  if (decision !== 'act' && decision !== 'ignore') throw new Error(`Bad decision: ${decision}`);
+  if (card.kind === 'scam') return decision === 'ignore' ? 'caught' : 'fooled';
+  return decision === 'act' ? 'trusted' : 'missed';
+}
+
+export const isCorrect = outcome => outcome === 'caught' || outcome === 'trusted';
+
+/** Results encode as one letter per card: A/I for act/ignore, lowercase when verified first. */
+export function encodeResults(results) {
+  return results
+    .map(r => {
+      const letter = r.decision === 'act' ? 'A' : 'I';
+      return r.verified ? letter.toLowerCase() : letter;
+    })
+    .join('');
+}
+
+export function decodeResults(text, deckLength) {
+  if (typeof text !== 'string' || text.length !== deckLength || !/^[AIai]+$/.test(text)) return null;
+  return [...text].map(ch => ({
+    decision: ch.toUpperCase() === 'A' ? 'act' : 'ignore',
+    verified: ch === ch.toLowerCase(),
+  }));
+}
+
+export function summarize(deck, results) {
+  const rows = deck.map((card, i) => {
+    const r = results[i];
+    const outcome = judge(card, r.decision);
+    return { card, decision: r.decision, verified: r.verified, outcome, correct: isCorrect(outcome) };
+  });
+  const correct = rows.filter(r => r.correct).length;
+  const fooled = rows.filter(r => r.outcome === 'fooled');
+  return {
+    rows,
+    total: rows.length,
+    correct,
+    fooled: fooled.length,
+    missed: rows.filter(r => r.outcome === 'missed').length,
+    verified: rows.filter(r => r.verified).length,
+    lossAvoided: rows
+      .filter(r => r.outcome === 'caught')
+      .reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
+    lossTaken: fooled.reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
+    rank: rankFor(correct, rows.length),
+  };
+}
+
+export function rankFor(correct, total) {
+  const ratio = total === 0 ? 0 : correct / total;
+  if (ratio === 1) return 'Unfeintable';
+  if (ratio >= 0.75) return 'Sharp-eyed';
+  if (ratio >= 0.5) return 'Getting there';
+  return 'Easy mark';
+}
+
+export function formatMoney(amount, country) {
+  return new Intl.NumberFormat(country.locale, {
+    style: 'currency',
+    currency: country.currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+/** Query string for a run: country, seed and (when finished) the results. */
+export function shareQuery({ country, seed, results }) {
+  const params = new URLSearchParams({ c: country, s: String(seed) });
+  if (results) params.set('r', encodeResults(results));
+  return `?${params.toString()}`;
+}
+
+export function readQuery(search) {
+  const params = new URLSearchParams(search);
+  const country = COUNTRY_BY_CODE[params.get('c') ?? ''] ? params.get('c') : null;
+  const seed = parseSeed(params.get('s') ?? '');
+  if (!country || !seed) return { country, seed: null, results: null };
+  const deck = buildDeck(country, seed);
+  const results = decodeResults(params.get('r') ?? '', deck.length);
+  return { country, seed, results };
+}
