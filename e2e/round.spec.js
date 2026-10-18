@@ -13,6 +13,25 @@ test('a rewind gives the savings back for the rest of the round', async ({ page 
   await expect(savings).toBeVisible();
 });
 
+test('the pip and accuracy show a wrong call as soon as it is made', async ({ page }) => {
+  await page.goto('/?c=us&s=7');
+  await expect(page.getByText('Message 1 of 8')).toBeVisible();
+  await page.keyboard.press('a');
+  await expect(page.getByText('Feinted')).toBeVisible();
+  await expect(page.locator('.pip').first()).toHaveClass(/wrong/);
+  await expect(page.locator('.meters')).toContainText('0 of 1 right');
+  await page.getByRole('button', { name: /Rewind and try again/ }).click();
+  await expect(page.locator('.pip').first()).toHaveClass(/now/);
+});
+
+test('the picker keeps the country after the field guide', async ({ page }) => {
+  await page.goto('/');
+  await page.locator('label', { hasText: 'Nigeria' }).click();
+  await page.getByRole('button', { name: /field guide/i }).click();
+  await page.getByRole('button', { name: /Back/ }).click();
+  await expect(page.locator('label.selected')).toContainText('Nigeria');
+});
+
 test('every phrase of a message is a button', async ({ page }) => {
   await page.goto('/?c=us&s=7');
   await page.getByRole('button', { name: 'send $400' }).click();

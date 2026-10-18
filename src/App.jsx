@@ -15,7 +15,7 @@ const TABS = [
   { id: 'guide', label: 'Field guide' },
 ];
 
-const EMPTY = { country: null, seed: null, results: [], index: 0, tab: 'play', shared: false, damaged: false, guide: null };
+const EMPTY = { country: null, seed: null, results: [], index: 0, tab: 'play', shared: false, damaged: false, guide: null, picked: null };
 
 function initialState() {
   const { country, seed, results, damaged } = readQuery(window.location.search);
@@ -130,7 +130,7 @@ export default function App() {
     return (
       <Shell>
         <div className="guide-bar">
-          <button className="chunky plain inline" onClick={() => setState(EMPTY)}>
+          <button className="chunky plain inline" onClick={() => setState({ ...EMPTY, picked: state.guide })}>
             <span>← Back</span>
           </button>
           <button className="chunky primary inline" onClick={() => startRun(state.guide)}>
@@ -146,6 +146,7 @@ export default function App() {
     return (
       <Shell>
         <CountryPicker
+          initial={state.picked}
           onPick={code => startRun(code)}
           onDaily={code => startRun(code, dailySeed())}
           onGuide={code => setState({ ...EMPTY, guide: code })}
@@ -177,7 +178,7 @@ export default function App() {
       }
       onChangeCountry={() => {
         resetCard();
-        setState(EMPTY);
+        setState({ ...EMPTY, picked: country });
       }}
     >
       {previous && !finished && results.length === 0 && tab === 'play' && !state.damaged && (

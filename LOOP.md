@@ -100,3 +100,18 @@ Unit tests 41/41. Playwright 20/22 against a local build (the 2 misses are the u
 | Keyboard shortcuts | Old steps (I alone should advance) | Test assumption | Test plan edited: I, then Enter |
 
 Unit tests 41/41. Playwright 22/24 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).
+
+## Run 9 · 2026-10-18 · PR #5, 84-test plan, after the card-face fix
+
+84 tests: 77 passed, 5 failed, 2 blocked. Clue tapping now works for the agent (counter reached 1).
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Progress pips track outcomes | After a wrong call the pip stayed blue ("now") until Next | Real gap | The pip and Accuracy show the decision on screen straight away; a rewind puts the pip back to "now". Playwright test added |
+| Return to the country picker from the field guide | Back showed the picker with a different country selected | Real gap | The picker keeps the country the player had chosen (also after the country chip). Playwright test added |
+| Complete the round by ignoring a scam | Its "fixed seed" round started with a genuine message | Test assumption | Test now uses `/?c=us&s=7` (message 1 is a scam) |
+| Mark clues and track clue count | The second phrase tapped was not one of the card's clues | Test assumption | Test now taps the two clues of `/?c=us&s=7` message 1 |
+| Reflect trust changes | Still looking for a Trust meter | Out-of-date test | Test now checks Accuracy |
+| Two blocked (verification tests) | Steps did not say which message to use | Vague test | Both now name a fixed link and message |
+
+Unit tests 41/41. Playwright round suite 12/12 against a local build.

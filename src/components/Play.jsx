@@ -79,7 +79,15 @@ export default function Play(props) {
   return (
     <div className="desk">
       <aside className="desk-left">
-        <Meters country={country} deck={deck} results={results} index={index} lost={lost} cluesSoFar={cluesSoFar} />
+        <Meters
+          country={country}
+          deck={deck}
+          results={results}
+          index={index}
+          pending={feedback?.outcome ?? null}
+          lost={lost}
+          cluesSoFar={cluesSoFar}
+        />
       </aside>
 
       <div className="desk-center">

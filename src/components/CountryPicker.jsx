@@ -17,8 +17,8 @@ const HINTS = {
   global: 'The ten universal tricks',
 };
 
-export default function CountryPicker({ onPick, onDaily, onGuide }) {
-  const [choice, setChoice] = useState(guessCountry);
+export default function CountryPicker({ initial, onPick, onDaily, onGuide }) {
+  const [choice, setChoice] = useState(() => initial ?? guessCountry());
 
   return (
     <div className="landing">
