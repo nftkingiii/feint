@@ -33,6 +33,7 @@ export const CLUES = {
     { text: '+234 701 ••• 0932', note: 'A number you have never seen, claiming to be family.' },
     { text: 'Abeg send 20k', note: 'Money first, explanation later. Call the number you already have.' },
     { text: 'my new number', note: '"New number" is the opening line of this scam everywhere.' },
+    { text: 'my phone fell inside water', note: 'A lost-phone story to explain the new number. Call the number you already have.' },
   ],
   'ng-task-job': [
     { text: 'Pay ₦10,000 activation', note: 'A job that asks you to pay in. The first small payout was bait.' },
@@ -63,6 +64,7 @@ export const CLUES = {
     { text: 'Start with $500', note: 'The friendship turned into a request for money.' },
   ],
   'us-new-number': [
+    { text: 'I broke my phone', note: 'A broken-phone story to explain the new number. Call the old one.' },
     { text: 'this is my new number', note: '"New number" from an unknown sender. Call the old one.' },
     { text: 'send $400', note: 'Urgent money, explanation later.' },
   ],

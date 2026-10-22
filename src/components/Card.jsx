@@ -33,7 +33,11 @@ export function segment(text, clues) {
   const out = [];
   let pos = 0;
   const pushPlain = chunk => {
-    for (const part of chunk.split(/(?<=[.,!?:])\s+/)) if (part.trim()) out.push({ text: part.trim(), clue: null });
+    for (const part of chunk.split(/(?<=[.,!?:])\s+/)) {
+      const text = part.trim();
+      // Punctuation on its own (a colon left between two phrases) is not something to tap.
+      if (text) out.push({ text, clue: null, inert: /^[.,!?:;…-]+$/.test(text) });
+    }
   };
   for (const hit of hits) {
     if (hit.start < pos) continue;
@@ -47,26 +51,24 @@ export function segment(text, clues) {
 
 function Segments({ text, clues, found, onTap }) {
   return segment(text, clues).map((seg, i) => {
+    if (seg.inert) return <span key={i}>{seg.text} </span>;
     const isFound = seg.clue !== null && found.has(seg.clue);
-    // An inline span (not a <button>) so the message wraps like normal text.
+    // Each phrase is its own inline-block button, so it wraps as a unit and its
+    // centre always lands on itself.
     return (
       <span key={i}>
-        <span
-          role="button"
-          tabIndex={0}
+        <button
+          type="button"
           className={isFound ? 'seg found' : 'seg'}
           onClick={() => onTap(seg.clue)}
           onKeyDown={e => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              e.stopPropagation();
-              onTap(seg.clue);
-            }
+            // Keep Enter and Space on the phrase, away from the round shortcuts.
+            if (e.key === 'Enter' || e.key === ' ') e.stopPropagation();
           }}
           aria-pressed={isFound}
         >
           {seg.text}
-        </span>{' '}
+        </button>{' '}
       </span>
     );
   });
@@ -189,7 +191,6 @@ export default function Card({ card, clues, found, onTap, checking, outcome, loc
         className={`card ${checking ? 'flipped' : ''} ${leaving ? 'leaving' : ''}`}
         style={style}
         role="group"
-        tabIndex={0}
         aria-label="Message card. Swipe right or press the right arrow key to act; swipe left or press the left arrow key to ignore."
         aria-keyshortcuts="ArrowRight ArrowLeft"
         onPointerDown={onPointerDown}

@@ -120,6 +120,18 @@ main {
   letter-spacing: -0.01em;
 }
 
+.wordmark-home {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.wordmark-home:hover {
+  color: var(--accent);
+}
+
 .tabs {
   display: flex;
   gap: 4px;
@@ -757,6 +769,17 @@ legend {
   box-shadow: 0 26px 44px -26px rgba(31, 28, 24, 0.45);
 }
 
+/* Hide the face that is turned away, so nothing behind it looks covered.
+   The switch happens mid-flip, when the card is edge-on. */
+.card:not(.flipped) .card-face.back,
+.card.flipped .card-face.front {
+  visibility: hidden;
+}
+
+.card-face {
+  transition: visibility 0s linear 130ms;
+}
+
 .card-face.back {
   transform: rotateY(180deg);
   background: var(--accent);
@@ -825,10 +848,24 @@ legend {
 }
 
 /* Every part of the message is tappable, so the layout never gives clues away. */
+/* Each phrase is a solid box: a phrase that would wrap moves to the next
+   line whole (or wraps inside its own box), so the centre of its box is
+   always on the phrase. A wrapped inline span has a box whose centre can
+   land on a neighbouring phrase, which made centre-of-box clicks miss. */
 .seg {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0;
+  border: 0;
   border-radius: 4px;
   padding: 1px 0;
-  cursor: help;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   transition: background 150ms;
@@ -1725,4 +1762,109 @@ legend {
   margin: 18px 0 0;
   color: var(--ink-2);
   font-size: 15px;
+}
+
+/* Daily case and shareable result */
+.daily-tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-weight: 700;
+}
+
+.picker-secondary {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.link-button {
+  border: 0;
+  background: none;
+  padding: 6px 0;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.share-result {
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+}
+
+.share-result h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 28px;
+}
+
+.result-text {
+  margin: 0;
+  width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--canvas);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* The messages again, listed under "That was the last message." */
+.review {
+  margin-top: 32px;
+  text-align: left;
+}
+
+.review h3 {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 24px;
+  margin: 0 0 12px;
+}
+
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.review-item {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.review-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.review-from {
+  margin: 0 0 2px;
+  font-weight: 600;
+}
+
+.review-body {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
 }

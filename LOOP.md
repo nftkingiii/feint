@@ -47,3 +47,78 @@ Unit tests 35/35 (new: round memory, including blocked storage).
 | Use swipe gestures to act and ignore | Blocked: the test browser cannot drag | The test tool has no drag action; the gesture itself works (verified with a Playwright mouse drag in run 2) | Arrow keys now swipe the card with the same animation and outcome, and the card is a labelled, focusable group, so swiping is reachable from the keyboard and verifiable by tools that cannot drag |
 
 Shared-case-file journeys from run 3 re-checked live afterwards.
+
+## Run 5 · 2026-10-18 · first pull-request run (PR #5)
+
+TestSprite's GitHub App ran 44 tests against the preview of PR #5 (daily case, shareable result, Playwright drag test): 39 passed, 4 failed, 1 blocked.
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Return to messages from the case file | After the round, the Play tab offered only "Open your case file" | Real gap | The last-message screen now also offers Play a new round and Play today's case |
+| Complete the round by ignoring a scam | The test ignored message 1 assuming it was a scam; in that random round it was a genuine bank alert, so "That was real" was correct | Test assumption | The PRD now says random rounds cannot assume message order and points to the fixed links |
+| Handle a suspicious message by checking first | The trusted channel confirmed the pharmacy message was real; the test still ignored it | Test assumption | Same PRD note |
+| Mark clues and track clue count | Clues were not marked by "keyboard activation" | Not reproduced: Enter and Space on a phrase mark it (Playwright). Found instead that a lone ":" was exposed as a button | Punctuation on its own is now plain text; a unit test checks every clue still becomes its own phrase |
+
+Unit tests 40/40. Pushed to the PR branch, so the check re-runs on the PR.
+
+## Run 6 · 2026-10-18 · pull-request run with the merge gate on (PR #5)
+
+44 tests on the PR #5 preview: 38 passed, 5 failed, 1 blocked. The TestSprite V3 check failed and held the merge, as intended.
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Invalid country code | `/zz` returned Vercel's 404 page instead of the game | Real bug | `vercel.json` sends every path to the app; Playwright checks `/zz` loads the game |
+| Mark clues (three tests) | Clicks at the centre of a phrase missed it. A phrase that wraps across lines has a box whose centre sits on a neighbouring phrase ("send $400" on phones, "this is my new number" on desktop) | Real bug, reproduced in Playwright | Phrases are now solid inline boxes; Playwright checks the centre of every phrase in three full rounds hits that phrase |
+| Ignore a genuine message after verifying it | The test used the BVN message, which is a scam, so "Scam avoided" was correct | Test assumption | None in the app; the test needs a genuine card from a fixed link |
+| Swipe (blocked) | TestSprite's browser cannot drag | Tool limit | Arrow keys already swipe; the test should press them. Playwright covers the drag itself |
+
+Unit tests 40/40. Playwright against the preview 16/16 (desktop and phone). Pushed to the PR branch, so the check re-runs.
+
+## Run 7 · 2026-10-18 · PR #5 after the solid-phrase fix
+
+44 tests: 36 passed, 6 failed, 2 blocked. The merge gate held the PR.
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Update savings after a wrong decision and rewind | Rewind put savings back to $8,000, then the next message showed $6,800 again | Real bug: the meter and case file still charged a rewound card | A rewind now gives the money back for good; it still counts as fooled for accuracy and rank. Unit test and Playwright test added |
+| Mark clues (three tests) | The agent did not see the phrases as controls ("not available as an interactive control") | Real gap: phrases were spans with a help cursor | Every phrase is now a real button with a pointer cursor; Playwright clicks "send $400" by its button role |
+| Return to the play screen from the case file | The test wanted to see the messages again after the round | Reasonable request | The Play tab now lists all 8 messages under "That was the last message." with how each went |
+| Keyboard shortcuts | After pressing I, the test expected the round to move on without Next | Test assumption | Not reproduced: I, then Enter (or Space) moves to message 2 in Playwright |
+| Swipe, check before acting (blocked) | Tool limits | Not app bugs | Swipe test should press the arrow keys |
+
+Unit tests 41/41. Playwright 20/22 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).
+
+## Run 8 · 2026-10-18 · PR #5 after phrases became buttons
+
+44 tests: 38 passed, 5 failed, 1 blocked. This run started from the push, before the edited test plan was saved, so the keyboard test still had its old steps.
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Mark clues / clue tapping to case file | The agent listed "Back to the message" as a control but no phrase buttons | Real bug: the turned-away back of the card sat on top of the message, so the phrases looked covered | The turned-away face is now hidden (switched mid-flip); the card wrapper is no longer a focus stop. Playwright checks only the showing face can be used |
+| Ignore a genuine message and continue | On a random round the agent took a scam bank alert for a genuine one; the game said "Scam avoided" correctly | Test assumption | Test now uses `/?c=ng&s=42`, message 3 (genuine) |
+| Reflect trust changes | Looked for a Trust meter, which became Accuracy in run 4 | Out-of-date test | Test now checks Accuracy |
+| Keyboard shortcuts | Old steps (I alone should advance) | Test assumption | Test plan edited: I, then Enter |
+
+Unit tests 41/41. Playwright 22/24 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).
+
+## Run 9 · 2026-10-18 · PR #5, 84-test plan, after the card-face fix
+
+84 tests: 77 passed, 5 failed, 2 blocked. Clue tapping now works for the agent (counter reached 1).
+
+| Failed test | What happened | Verdict | Change |
+|---|---|---|---|
+| Progress pips track outcomes | After a wrong call the pip stayed blue ("now") until Next | Real gap | The pip and Accuracy show the decision on screen straight away; a rewind puts the pip back to "now". Playwright test added |
+| Return to the country picker from the field guide | Back showed the picker with a different country selected | Real gap | The picker keeps the country the player had chosen (also after the country chip). Playwright test added |
+| Complete the round by ignoring a scam | Its "fixed seed" round started with a genuine message | Test assumption | Test now uses `/?c=us&s=7` (message 1 is a scam) |
+| Mark clues and track clue count | The second phrase tapped was not one of the card's clues | Test assumption | Test now taps the two clues of `/?c=us&s=7` message 1 |
+| Reflect trust changes | Still looking for a Trust meter | Out-of-date test | Test now checks Accuracy |
+| Two blocked (verification tests) | Steps did not say which message to use | Vague test | Both now name a fixed link and message |
+
+Unit tests 41/41. Playwright round suite 12/12 against a local build.
+
+## Runs 10–11 · 2026-10-18 · PR #5 with the rewritten test plan
+
+- Run 10: 82/84. Two clue tests tapped phrases that were not clues. The "my phone fell inside water" excuse is a fair tell, so the lost-phone excuse is now a clue in the Nigeria and US new-number scams; the other test was given fixed steps.
+- Run 11: 83/84. "Open the field guide from the game" found no way to leave a round (only the country chip did it). In a round the Feint wordmark is now a "Leave the round" button that goes back to the start with the country kept. Playwright test added.
+
+Unit tests 41/41. Playwright 28/30 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).

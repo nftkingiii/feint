@@ -1,10 +1,17 @@
 import { useEffect } from 'react';
 import { CLUES } from '../data/clues.js';
 import { PATTERN_BY_ID } from '../data/patterns.js';
-import { formatMoney } from '../lib/engine.js';
+import { dailyLabel, formatMoney, summarize } from '../lib/engine.js';
 import Card from './Card.jsx';
 import Guide from './Guide.jsx';
 import Meters from './Meters.jsx';
+
+const REVIEW = {
+  caught: { label: 'Scam avoided', tone: 'good' },
+  trusted: { label: 'Real, trusted', tone: 'good' },
+  missed: { label: 'Real, ignored', tone: 'warn' },
+  fooled: { label: 'Fooled', tone: 'bad' },
+};
 
 const CHANNEL_NOUN = { sms: 'text', whatsapp: 'WhatsApp message', call: 'call', email: 'email' };
 
@@ -24,8 +31,9 @@ function guideLine({ index, card, feedback, checking, lastTap }) {
 }
 
 export default function Play(props) {
-  const { country, deck, results, index, card, finished, checking, verified, feedback, found, lastTap, lost, cluesSoFar } = props;
-  const { onTap, onCheck, onCloseCheck, onDecide, onRewind, onNext, onShowCase } = props;
+  const { country, deck, results, index, card, finished, checking, verified, feedback, pending, found, lastTap, lost, cluesSoFar, seed } = props;
+  const daily = dailyLabel(seed);
+  const { onTap, onCheck, onCloseCheck, onDecide, onRewind, onNext, onShowCase, onPlayAgain, onDaily } = props;
 
   useShortcuts({ card, feedback, finished, checking, onCheck, onCloseCheck, onDecide, onRewind, onNext });
 
@@ -33,9 +41,34 @@ export default function Play(props) {
     return (
       <div className="round-done">
         <h2>That was the last message.</h2>
-        <button className="btn primary" onClick={onShowCase}>
-          Open your case file
-        </button>
+        <div className="panel-actions">
+          <button className="chunky primary" onClick={onShowCase}>
+            <span>Open your case file</span>
+          </button>
+          <button className="chunky plain" onClick={onPlayAgain}>
+            <span>Play a new round</span>
+          </button>
+          <button className="chunky plain" onClick={onDaily}>
+            <span>Play today’s case</span>
+          </button>
+        </div>
+        <section className="review" aria-labelledby="review-title">
+          <h3 id="review-title">Your messages</h3>
+          <ol className="review-list">
+            {summarize(deck, results).rows.map((row, i) => (
+              <li key={row.card.id} className="review-item">
+                <p className="review-head">
+                  <span className="review-num">Message {i + 1}</span>
+                  <span className={`chip ${REVIEW[row.outcome].tone}`}>
+                    {row.rewound ? 'Fooled, caught on rewind' : REVIEW[row.outcome].label}
+                  </span>
+                </p>
+                <p className="review-from">{row.card.from}</p>
+                <p className="review-body">{row.card.body}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
       </div>
     );
   }
@@ -46,11 +79,20 @@ export default function Play(props) {
   return (
     <div className="desk">
       <aside className="desk-left">
-        <Meters country={country} deck={deck} results={results} index={index} lost={lost} cluesSoFar={cluesSoFar} />
+        <Meters
+          country={country}
+          deck={deck}
+          results={results}
+          index={index}
+          pending={pending}
+          lost={lost}
+          cluesSoFar={cluesSoFar}
+        />
       </aside>
 
       <div className="desk-center">
         <p className="situation-label">
+          {daily && <span className="daily-tag">Today’s case · {daily}</span>}
           Message {index + 1} of {deck.length} · a {CHANNEL_NOUN[card.channel]}
         </p>
         <p className="situation">{card.context}</p>

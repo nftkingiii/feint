@@ -22,6 +22,7 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 
 ## Navigation
 
+- **Play today’s case** on the landing page deals the daily round for the selected country: the same 8 messages for everyone that UTC day (seed = YYYYMMDD, e.g. `/?c=ng&s=20261018`). Play shows "Today’s case · 18 October 2026" and the case file label adds "Daily case 18 October 2026".
 - First visit (`/`): the country picker. Options: Nigeria, United States, United Kingdom, Anywhere else, each with a flag. One is pre-selected from the browser language; **Start playing** begins a round.
 - **See an example case file** (a link under the buttons on the landing page) opens a finished Nigeria round as a shared case file: `/?c=ng&s=42&r=IIAIIJAI`, rank **Sharp-eyed**, 7 of 8, with message 6 shown as "Fooled, caught on rewind".
 - **Read the field guide** on the landing page opens the field guide for the selected country without starting a round. It has **← Back** (returns to the picker) and **Start playing**.
@@ -34,7 +35,7 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 
 - Header line: "Message N of 8 · a text / WhatsApp message / call / email", then a one-line situation in large serif type.
 - The message card shows a channel badge, the sender and the message.
-- **Clue tapping:** the sender and message are split into phrases, and each phrase is a button (role `button`, named by its text, e.g. the button "0803 ••• 4471"). Tapping a real clue highlights it in yellow, the card footer changes to "1 clue marked" (2, 3…), the Clues marked meter goes up by one, and the guide "Vee" explains it. Tapping a plain phrase, or the space between phrases, makes Vee say "Nothing odd there. Keep looking, or decide." Marking clues never blocks deciding: the act, check and ignore buttons stay available.
+- **Clue tapping:** the sender and message are split into phrases, and each phrase is a button (role `button`, named by its text, e.g. the button "0803 ••• 4471"). Tapping a real clue highlights it in yellow, the card footer changes to "1 clue marked" (2, 3…), the Clues marked meter goes up by one, and the guide "Vee" explains it. Punctuation on its own (such as a colon between two phrases) is plain text, not a button. Tapping a plain phrase, or the space between phrases, makes Vee say "Nothing odd there. Keep looking, or decide." Marking clues never blocks deciding: the act, check and ignore buttons stay available.
 - **Decisions:** three buttons on the right (desktop) or under the card (mobile):
   - the act button, labelled with what acting means for that message (e.g. "Hand over the phone"), keyboard **A**;
   - **Check first**, keyboard **C**;
@@ -42,9 +43,9 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 - **Swipe:** dragging the card right past the threshold acts; dragging left ignores; a short drag springs back. **The arrow keys swipe too:** pressing → throws the card right (act) and ← throws it left (ignore), with the same animation, stamp and outcome as a drag. The card is a focusable group labelled "Message card. Swipe right or press the right arrow key to act; swipe left or press the left arrow key to ignore." Tools that cannot drag can verify swiping with the arrow keys. The hint under the card reads "Drag left or press ← to ignore" and "Drag right or press → to act".
 - **Swipe check (Nigeria seed 42):** press → on message 1 (a scam) → stamp "Feinted"; **Take the loss**; press ← on message 2 (a scam) → stamp "Scam avoided"; **Next message** shows "Message 3 of 8".
 - **Check first** flips the card to its back: "Checked through a channel you trust", a heading (e.g. "Your banking app") and evidence lines. **Back to the message** (or C / Escape) flips it back. The act and ignore decisions still work while the check is showing.
-- **After a correct decision:** a green stamp on the card ("Scam avoided" or "Real. Good call"), Vee explains the tell, and a **Next message** button (Enter). After the last message the button reads **See your case file**.
+- **After a correct decision:** a green stamp on the card ("Scam avoided" or "Real. Good call"), Vee explains the tell, and a **Next message** button (Enter). After the last message the button reads **See your case file**. If the player returns to the Play tab after the round, it shows "That was the last message." with **Open your case file**, **Play a new round** and **Play today’s case**, and below them **Your messages**: all 8 messages again (sender and text) with how each went.
 - **After ignoring a genuine message:** an amber stamp "That was real".
-- **After being fooled:** a red stamp "Feinted", a loss panel with the illustrative amount (e.g. "−₦85,000"), what was taken, and the trick's name. Savings in the left meter drop by that amount. Two buttons: **Rewind and try again** (R), which restores savings and lets the player decide again, and **Take the loss**, which moves on.
+- **After being fooled:** a red stamp "Feinted", a loss panel with the illustrative amount (e.g. "−₦85,000"), what was taken, and the trick's name. Savings in the left meter drop by that amount. Two buttons: **Rewind and try again** (R), which restores savings for the rest of the round (the case file's Savings left does not count it either) and lets the player decide again, and **Take the loss**, which moves on.
 - **Meters** (left column on desktop; on mobile only Savings and the pips show): Savings (illustrative), **Accuracy** ("N of M right" for calls made so far, "—" before the first call; a rewound card counts as wrong, so it drops after a fooled call), Clues marked (rises by one for each clue tapped), and eight progress pips (green = right, red = wrong, indigo = current).
 
 ## Case file
@@ -54,6 +55,7 @@ Anyone with a phone and a bank account, especially people new to mobile money or
 - Ledger: Savings left, Losses dodged, Checked first (x/8), Clues marked ("—" when opened from a shared link).
 - A timeline of all 8 messages with outcome chip ("Scam avoided", "Real, trusted", "Fooled", "Real, ignored", or "Fooled, caught on rewind"), sender, trick name for scams, and the tell.
 - "If it happens for real in <country>": where to report, with sources.
+- **Share your result:** a plain-text block (title line, "7/8 · Sharp-eyed", one square per message: green right, red fooled, yellow a real message ignored, then the link) and **Copy result** (changes to "Result copied").
 - **Share this case file:** a read-only link field and **Copy link** (changes to "Link copied").
 - **Play a new round** (new seed) and **Play today's challenge** (seed from today's UTC date).
 - Before the round ends, the Case file tab says "Your case file opens when the round ends." with a count of messages handled, unless this browser finished the same round before (see below).
@@ -66,7 +68,7 @@ Ten pattern cards (e.g. "The fake payment alert", "Verify or be frozen", "The ne
 
 ## Fixed test anchors
 
-These links always deal the same messages. Use them so tests can check exact outcomes.
+These links always deal the same messages. Use them so tests can check exact outcomes. A test that starts from **Start playing** gets a random round, so it cannot assume message 1 is a scam or a genuine message; read the outcome from the stamp instead, or use one of these links.
 
 **Nigeria, seed 42 — `/?c=ng&s=42`**
 

@@ -12,6 +12,9 @@ import {
   parseSeed,
   rankFor,
   readQuery,
+  dailyDate,
+  dailyLabel,
+  shareText,
   shareQuery,
   summarize,
 } from './engine.js';
@@ -187,6 +190,16 @@ describe('summarize', () => {
     expect(g.rank).toBe('Easy mark');
   });
 
+  it('gives the money back after a rewind but still counts the card as fooled', () => {
+    const deck = buildDeck('us', 7);
+    const results = deck.map(c => ({ decision: c.kind === 'scam' ? 'ignore' : 'act', verified: false }));
+    const scam = deck.findIndex(c => c.kind === 'scam');
+    results[scam] = { ...results[scam], rewound: true };
+    const s = summarize(deck, results);
+    expect(s.fooled).toBe(1);
+    expect(s.lossTaken).toBe(0);
+  });
+
   it('counts a card answered right only after a rewind as fooled', () => {
     const deck = buildDeck('us', 3);
     const perfect = deck.map(c => ({ decision: c.kind === 'scam' ? 'ignore' : 'act', verified: false }));
@@ -216,5 +229,29 @@ describe('seeds', () => {
   });
   it('derives a daily seed from the UTC date', () => {
     expect(dailySeed(new Date('2026-10-18T12:00:00Z'))).toBe(20261018);
+  });
+});
+
+describe('daily case and share text', () => {
+  it('recognises daily seeds and only real dates', () => {
+    expect(dailyLabel(20261018)).toBe('18 October 2026');
+    expect(dailyDate(20260230)).toBeNull();
+    expect(dailyDate(42)).toBeNull();
+    expect(dailyLabel(1880143996)).toBeNull();
+  });
+
+  it('builds a pasteable result with one square per message', () => {
+    const deck = buildDeck('ng', 42);
+    const summary = summarize(deck, decodeResults('IIAIIJAI', 8));
+    const country = { name: 'Nigeria' };
+    const link = 'https://feint.vercel.app/?c=ng&s=42&r=IIAIIJAI';
+    expect(shareText({ country, seed: 42, summary, link }).split(String.fromCharCode(10))).toEqual([
+      'Feint · Nigeria',
+      '7/8 · Sharp-eyed',
+      '🟩🟩🟩🟩🟩🟥🟩🟩',
+      link,
+    ]);
+    const daily = shareText({ country, seed: 20261018, summary, link: 'x' });
+    expect(daily.split(String.fromCharCode(10))[0]).toBe('Feint · Nigeria · Daily case 18 October 2026');
   });
 });

@@ -2,19 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import { formatMoney, judge } from '../lib/engine.js';
 
 /**
- * The three meters: savings (drops when fooled), trust (real messages handled
- * well) and clues marked, plus one pip per message in the round.
+ * The three meters: savings (drops when fooled), accuracy (calls that were
+ * right) and clues marked, plus one pip per message in the round. `pending` is
+ * the outcome of the decision on screen, shown before the player moves on.
  */
-export default function Meters({ country, deck, results, index, lost, cluesSoFar, compact = false }) {
+export default function Meters({ country, deck, results, index, pending = null, lost, cluesSoFar, compact = false }) {
   const savings = Math.max(0, country.wallet - lost);
   const shown = useCountTo(savings);
 
   // Accuracy: share of calls made so far that were right. A rewound card counts as wrong.
-  const right = results.filter((r, i) => {
-    const outcome = r.rewound ? 'fooled' : judge(deck[i], r.decision);
-    return outcome === 'caught' || outcome === 'trusted';
-  }).length;
-  const accuracy = results.length === 0 ? null : right / results.length;
+  const outcomes = results.map((r, i) => (r.rewound ? 'fooled' : judge(deck[i], r.decision)));
+  if (pending) outcomes.push(pending);
+  const isRight = o => o === 'caught' || o === 'trusted';
+  const right = outcomes.filter(isRight).length;
+  const accuracy = outcomes.length === 0 ? null : right / outcomes.length;
 
   return (
     <div className={compact ? 'meters compact' : 'meters'}>
@@ -23,7 +24,7 @@ export default function Meters({ country, deck, results, index, lost, cluesSoFar
         <>
           <Meter
             label="Accuracy"
-            value={accuracy === null ? '—' : `${right} of ${results.length} right`}
+            value={accuracy === null ? '—' : `${right} of ${outcomes.length} right`}
             ratio={accuracy ?? 1}
             tone="accuracy"
             note="calls so far"
@@ -37,11 +38,8 @@ export default function Meters({ country, deck, results, index, lost, cluesSoFar
       <ol className="pips" aria-label="Progress through the round">
         {deck.map((card, i) => {
           let state = 'todo';
-          if (i < results.length) {
-            const r = results[i];
-            const o = r.rewound ? 'fooled' : judge(card, r.decision);
-            state = o === 'caught' || o === 'trusted' ? 'right' : 'wrong';
-          } else if (i === index) state = 'now';
+          if (i < outcomes.length) state = isRight(outcomes[i]) ? 'right' : 'wrong';
+          else if (i === index) state = 'now';
           return <li key={card.id} className={`pip ${state}`} aria-label={`Message ${i + 1}: ${state === 'todo' ? 'not yet' : state}`} />;
         })}
       </ol>

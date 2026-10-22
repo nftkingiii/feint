@@ -15,7 +15,7 @@ const TABS = [
   { id: 'guide', label: 'Field guide' },
 ];
 
-const EMPTY = { country: null, seed: null, results: [], index: 0, tab: 'play', shared: false, damaged: false, guide: null };
+const EMPTY = { country: null, seed: null, results: [], index: 0, tab: 'play', shared: false, damaged: false, guide: null, picked: null };
 
 function initialState() {
   const { country, seed, results, damaged } = readQuery(window.location.search);
@@ -44,12 +44,11 @@ export default function App() {
   // A finished result for this same round, remembered from an earlier visit in this browser.
   const previous = useMemo(() => (country && seed && !state.shared ? recallRound(country, seed) : null), [country, seed, state.shared]);
 
-  // Savings lost: every committed loss, plus the one on screen until the player rewinds.
+  // Savings lost: every loss the player took, plus the one on screen until they rewind.
+  // A rewind gives the money back for good; it still counts as fooled for accuracy.
   const lost =
-    results.reduce((sum, r, i) => {
-      const fooled = r.rewound || judge(deck[i], r.decision) === 'fooled';
-      return sum + (fooled ? deck[i].lossAmount ?? 0 : 0);
-    }, 0) + (feedback?.outcome === 'fooled' ? card.lossAmount : 0);
+    results.reduce((sum, r, i) => sum + (judge(deck[i], r.decision) === 'fooled' ? deck[i].lossAmount ?? 0 : 0), 0) +
+    (feedback?.outcome === 'fooled' ? card.lossAmount : 0);
   const cluesSoFar = results.reduce((n, r) => n + (r.clues ?? 0), 0) + found.size;
 
   // Keep the address bar in step so any moment of a run can be shared or reloaded.
@@ -131,7 +130,7 @@ export default function App() {
     return (
       <Shell>
         <div className="guide-bar">
-          <button className="chunky plain inline" onClick={() => setState(EMPTY)}>
+          <button className="chunky plain inline" onClick={() => setState({ ...EMPTY, picked: state.guide })}>
             <span>← Back</span>
           </button>
           <button className="chunky primary inline" onClick={() => startRun(state.guide)}>
@@ -146,7 +145,12 @@ export default function App() {
   if (!countryInfo) {
     return (
       <Shell>
-        <CountryPicker onPick={code => startRun(code)} onGuide={code => setState({ ...EMPTY, guide: code })} />
+        <CountryPicker
+          initial={state.picked}
+          onPick={code => startRun(code)}
+          onDaily={code => startRun(code, dailySeed())}
+          onGuide={code => setState({ ...EMPTY, guide: code })}
+        />
       </Shell>
     );
   }
@@ -174,7 +178,7 @@ export default function App() {
       }
       onChangeCountry={() => {
         resetCard();
-        setState(EMPTY);
+        setState({ ...EMPTY, picked: country });
       }}
     >
       {previous && !finished && results.length === 0 && tab === 'play' && !state.damaged && (
@@ -197,6 +201,7 @@ export default function App() {
         {tab === 'play' && (
           <Play
             country={countryInfo}
+            seed={seed}
             deck={deck}
             results={results}
             index={index}
@@ -205,6 +210,8 @@ export default function App() {
             checking={checking}
             verified={verified}
             feedback={feedback}
+            // A message put right only after a rewind still counts as fooled, so the meters show it that way at once.
+            pending={feedback ? (rewound ? 'fooled' : feedback.outcome) : null}
             found={found}
             lastTap={lastTap}
             lost={lost}
@@ -216,6 +223,8 @@ export default function App() {
             onRewind={onRewind}
             onNext={onNext}
             onShowCase={() => setTab('case')}
+            onPlayAgain={() => startRun(country)}
+            onDaily={() => startRun(country, dailySeed())}
           />
         )}
         {tab === 'case' && (
@@ -242,7 +251,14 @@ function Shell({ country, tabs, onChangeCountry, children }) {
   return (
     <div className="app">
       <header className="masthead">
-        <span className="wordmark">Feint</span>
+        {onChangeCountry ? (
+          // In a round, the wordmark is the way out: back to the start, country kept.
+          <button className="wordmark wordmark-home" onClick={onChangeCountry} aria-label="Leave the round and go back to the start" title="Leave the round">
+            Feint
+          </button>
+        ) : (
+          <span className="wordmark">Feint</span>
+        )}
         {tabs}
         {country && (
           <button className="country-chip" onClick={onChangeCountry} aria-label={`Country: ${country.name}. Change country`}>

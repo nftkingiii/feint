@@ -122,7 +122,8 @@ export function summarize(deck, results) {
     lossAvoided: rows
       .filter(r => r.outcome === 'caught')
       .reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
-    lossTaken: fooled.reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
+    // Money only goes when the player takes the loss; a rewind gives it back.
+    lossTaken: fooled.filter(r => !r.rewound).reduce((sum, r) => sum + (r.card.lossAmount ?? 0), 0),
     rank: rankFor(correct, rows.length),
   };
 }
@@ -170,4 +171,34 @@ export function readQuery(search) {
   const cleaned = raw === null ? '' : raw.trim().replace(/[^ABIJabij]+$/, '');
   const results = decodeResults(cleaned, deck.length);
   return { country, seed, results, damaged: raw !== null && results === null };
+}
+
+/**
+ * The calendar date a daily seed stands for, or null for an ordinary seed.
+ * Daily seeds are YYYYMMDD numbers (see dailySeed).
+ */
+export function dailyDate(seed) {
+  if (!Number.isInteger(seed) || seed < 20000101 || seed > 29991231) return null;
+  const y = Math.floor(seed / 10000);
+  const m = Math.floor(seed / 100) % 100;
+  const d = seed % 100;
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d ? date : null;
+}
+
+export function dailyLabel(seed) {
+  const date = dailyDate(seed);
+  return date
+    ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
+    : null;
+}
+
+const SQUARE = { caught: '🟩', trusted: '🟩', fooled: '🟥', missed: '🟨' };
+
+/** A plain-text result to paste anywhere: title line, score, one square per message, link. */
+export function shareText({ country, seed, summary, link }) {
+  const daily = dailyLabel(seed);
+  const title = `Feint · ${country.name}${daily ? ` · Daily case ${daily}` : ''}`;
+  const grid = summary.rows.map(r => SQUARE[r.outcome]).join('');
+  return `${title}\n${summary.correct}/${summary.total} · ${summary.rank}\n${grid}\n${link}`;
 }
