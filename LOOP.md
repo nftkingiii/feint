@@ -122,3 +122,14 @@ Unit tests 41/41. Playwright round suite 12/12 against a local build.
 - Run 11: 83/84. "Open the field guide from the game" found no way to leave a round (only the country chip did it). In a round the Feint wordmark is now a "Leave the round" button that goes back to the start with the country kept. Playwright test added.
 
 Unit tests 41/41. Playwright 28/30 against a local build (the 2 misses are the unknown-path test, which needs Vercel's rewrite).
+
+## Runs 12–14 · 2026-10-19 · PR #5, tightening the last tests
+
+- Run 12: 82/84. Two clue tests landed on the genuine sign-in-code message, which has no clues by design. Both tests, and two others written the same loose way, now use fixed links.
+- Run 13: 82/84. Real bug: after a rewind and a correct second try, the pip and Accuracy briefly showed the call as right, then flipped to wrong on the next message. The meters now show a rewound call as wrong straight away (Playwright test added). The other failure was TestSprite's agent making a wrong call itself in an "all correct" round; that test now spells out each key.
+- Run 14: 83/84. The agent took a scam for the genuine message; that test now names message 3 of the fixed Nigeria round.
+- Two pushes after this (an empty re-run and the README) did not run: the account was out of credits.
+
+## Final run · 2026-10-22 · PR #5 green
+
+With credits refilled, every remaining test whose outcome depended on the agent judging a random round was pinned to a fixed round with known answers. The run on commit 7e1e9c3 reported "All 168 tests passed" (the plan is 84 tests; saving the edited plan appears to have added a second copy of each, and both copies passed). PR #5 merged on a green check.
